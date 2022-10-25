@@ -25,8 +25,16 @@ public final class ArrayUtils {
      * @return (boolean) - true if both arrays have the same content (or both null), false otherwise
      * @throws AssertionError if one of the parameters is null
      */
-    public static boolean equals(byte[] a1, byte[] a2){
-        return Helper.fail("Not Implemented");
+    public static boolean equals (byte[] a1, byte[] a2) {
+
+        assert a1 != null && a2 != null : "At least one of the arrays is null";
+
+        if (a1.length != a2.length) return false;
+
+        for (int i = 0; i < a1.length; i++)
+            if (a1[i] != a2[i]) return false;
+
+        return true;
     }
 
     /**
