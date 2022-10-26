@@ -46,7 +46,7 @@ public final class Main {
         assert testFromInt();
         assert testConcatArrayBytes();
         assert testConcatBytes();
-        //assert testExtract();
+        assert testExtract();
         //assert testPartition();
         //assert testImageToChannels();
         //assert testChannelsToImage();
@@ -208,8 +208,14 @@ public final class Main {
     private static boolean testExtract(){
         byte[] tab = {1, 2, 3, 4, 5, 6, 7, 8};
         byte[] extracted = ArrayUtils.extract(tab, 2, 5);
+        byte[] extracted2 = ArrayUtils.extract(tab, 7, 1);
         byte[] expected = {3, 4, 5, 6, 7};
-        return Arrays.equals(expected, extracted);
+        byte[] expected2 = {8};
+        // The following cases should throw AssertionError when uncommented:
+        // ArrayUtils.extract(null, 1, 1);
+        // ArrayUtils.extract(tab, 1, 9);
+        // ArrayUtils.extract(tab, 9, -1);
+        return Arrays.equals(expected, extracted) && Arrays.equals(expected2, extracted2);
     }
 
     @SuppressWarnings("unused")

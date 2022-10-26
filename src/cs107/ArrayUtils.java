@@ -195,8 +195,16 @@ public final class ArrayUtils {
      * start + length should also be smaller than the input's length
      */
     @SuppressWarnings("unused")
-    public static byte[] extract(byte[] input, int start, int length){
-        return Helper.fail("Not Implemented");
+    public static byte[] extract (byte[] input, int start, int length){
+
+        assert input != null : "The input array is null";
+        assert (0 <= start && start < input.length && length >= 0 && start + length <= input.length) : "The given positions are invalid";
+
+        byte[] output = new byte[length];
+
+        for (int i = 0; i < length; i++) output[i] = input[start + i];
+
+        return output;
     }
 
     /**
