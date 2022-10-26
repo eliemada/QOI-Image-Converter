@@ -25,17 +25,22 @@ public final class ArrayUtils {
      * @return (boolean) - true if both arrays have the same content (or both null), false otherwise
      * @throws AssertionError if one of the parameters is null
      */
-    public static boolean equals (byte[] a1, byte[] a2) {
+    public static boolean equals(byte[] a1, byte[] a2) {
 
         assert !(a1 != null ^ a2 != null) : "Only one of the arrays is null";
-
         // If both are null, then they are equal (only check one array because of the previous assertion)
-        if (a1 == null) return true;
+        if (a1 == null) {
+            return true;
+        }
 
-        if (a1.length != a2.length) return false;
+        if (a1.length != a2.length) {
+            return false;
+        }
 
         for (int i = 0; i < a1.length; i++)
-            if (a1[i] != a2[i]) return false;
+            if (a1[i] != a2[i]) {
+                return false;
+            }
 
         return true;
     }
@@ -46,9 +51,40 @@ public final class ArrayUtils {
      * @param a2 (byte[][]) - Second array
      * @return (boolean) - true if both arrays have the same content (or both null), false otherwise
      * @throws AssertionError if one of the parameters is null
+     * @author Elie BRUNO (elie.bruno@epfl.ch )
+     *
+     * <ul>
+     *     <li>
+     *     First we are going to check if one of our table is null but not both.
+     *     </li><li>
+     *     Then we check if both of them are null, if so we return true as they have the same size
+     *</li>
+     * <li>
+     *     To finish we loop through every lines of our table and use the {@code equals(byte[] a1, byte[]
+     *     a2)} function in every line to check if the arrays are equal.     <ul>
+     *         <li>If they are we {@code return} true</li>
+     *         <li>Otherwise we {@code return} false</li>
+     *         </ul>
+     * </li>
+     * </ul>
      */
     public static boolean equals(byte[][] a1, byte[][] a2){
-        return Helper.fail("Not Implemented");
+        assert !(a1 != null ^ a2 != null) : "Only one of the arrays is null";
+        // If both are null, then they are equal (only check one array because of the previous assertion)
+        if (a1 == null) {
+            return true;
+        }
+        boolean verify = false;
+        if (a1.length!= a2.length){
+            return false;
+        }
+        for (int i = 0; i < a1.length; i++){
+            verify = equals(a1[i], a2[i]);
+            if (!verify){
+                break;
+            }
+        }
+        return verify;
     }
 
     // ==================================================================================
@@ -61,7 +97,9 @@ public final class ArrayUtils {
      * @return (byte[]) - array with one element (value)
      */
     public static byte[] wrap(byte value){
-        return Helper.fail("Not Implemented");
+        byte[] wrappedArray = new byte[1];
+        wrappedArray[0] = value;
+        return wrappedArray;
     }
 
     // ==================================================================================
@@ -76,9 +114,17 @@ public final class ArrayUtils {
      * @return (int) - Integer representation of the array
      * @throws AssertionError if the input is null or the input's length is different from 4
      */
-    public static int toInt(byte[] bytes){
-        return Helper.fail("Not Implemented");
+    public static int toInt(byte[] bytes) {
+
+        int output  = 0;
+        int shift = 24;
+        for (int i = 0; i < bytes.length; i++) {
+            output += bytes[i] << shift;
+            shift -= 8;
+        }
+        return output;
     }
+
 
     /**
      * Separate the Integer (word) to 4 bytes. The Memory layout of this integer is "Big Endian"
