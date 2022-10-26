@@ -122,6 +122,7 @@ public final class ArrayUtils {
             output += bytes[i] << shift;
             shift -= 8;
         }
+
         return output;
     }
 
