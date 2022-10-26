@@ -129,7 +129,16 @@ public final class ArrayUtils {
      * @return (byte[]) - Big Endian representation of the integer
      */
     public static byte[] fromInt(int value){
-        return Helper.fail("Not Implemented");
+
+        byte[] output = new byte[4];
+        int shift = 24;
+
+        for (int i = 0; i < 4; i++) {
+            output[i] = (byte) (value >> shift);
+            shift -= 8;
+        }
+
+        return output;
     }
 
     // ==================================================================================
