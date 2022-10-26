@@ -40,7 +40,7 @@ public final class Main {
          */
 
         // ========== Test ArrayUtils ==========
-        //assert testEquals();
+        assert testEquals();
         //assert testWrap();
         assert testToInt();
         assert testFromInt();

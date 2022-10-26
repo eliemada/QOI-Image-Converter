@@ -128,11 +128,11 @@ public final class ArrayUtils {
      * @return (byte[]) - Big Endian representation of the integer
      */
     public static byte[] fromInt(int value){
-
+        // add asserts?
         byte[] output = new byte[4];
         int shift = 24;
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < output.length; i++) {
             output[i] = (byte) (value >> shift);
             shift -= 8;
         }
