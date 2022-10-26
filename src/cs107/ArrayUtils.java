@@ -30,7 +30,9 @@ public final class ArrayUtils {
         assert a1 != null ^ a2 != null : "Only one of the arrays is null";
 
         // If both are null, then they are equal (only check one array because of the previous assertion)
-        if (a1 == null) return true;
+        if (a1 == null && a2 == null) {
+            return true;
+        }
 
         if (a1.length != a2.length) return false;
 
