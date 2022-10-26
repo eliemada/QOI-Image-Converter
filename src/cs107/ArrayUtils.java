@@ -74,17 +74,16 @@ public final class ArrayUtils {
         if (a1 == null) {
             return true;
         }
-        boolean verify = false;
         if (a1.length!= a2.length){
             return false;
         }
         for (int i = 0; i < a1.length; i++){
-            verify = equals(a1[i], a2[i]);
-            if (!verify){
-                break;
+
+            if (!equals(a1[i], a2[i])){
+                return false;
             }
         }
-        return verify;
+        return true;
     }
 
     // ==================================================================================
