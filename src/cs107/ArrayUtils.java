@@ -134,7 +134,8 @@ public final class ArrayUtils {
      * @return (byte[]) - Big Endian representation of the integer
      */
     public static byte[] fromInt(int value){
-        return Helper.fail("Not Implemented");
+        byte[] output = {(byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) value};
+        return output;
     }
 
     // ==================================================================================
