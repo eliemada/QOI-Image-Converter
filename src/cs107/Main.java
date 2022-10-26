@@ -40,10 +40,10 @@ public final class Main {
          */
 
         // ========== Test ArrayUtils ==========
-        assert testEquals();
+        //assert testEquals();
         //assert testWrap();
-        //assert testToInt();
-        //assert testFromInt();
+        assert testToInt();
+        assert testFromInt();
         //assert testConcatArrayBytes();
         //assert testConcatBytes();
         //assert testExtract();
@@ -80,6 +80,8 @@ public final class Main {
      * @param inputFile (String) - The path of the file to encode
      * @param outputFile (String) - The path where to store the generated "Quite Ok Image"
      */
+
+    @SuppressWarnings("unused")
     public static void pngToQoi(String inputFile, String outputFile){
         // Read a PNG file
         var inputImage = Helper.readImage(inputFile);
@@ -94,6 +96,8 @@ public final class Main {
      * @param inputFile (String) - The path of the file to decode
      * @param outputFile (String) - The path where to store the generated "PNG" Image
      */
+
+    @SuppressWarnings("unused")
     public static void qoiToPng(String inputFile, String outputFile){
         // Read in binary mode the file 'input_file'
         var inputFileContent = Helper.read(inputFile);
@@ -109,6 +113,8 @@ public final class Main {
      * @param qoi (int) - Size of the "QOI" file
      * @return (int) - The ratio
      */
+
+    @SuppressWarnings("unused")
     public static double ratio(int png, int qoi){
         return 100d * png / qoi;
     }
@@ -118,22 +124,43 @@ public final class Main {
     // ============================================================================================
 
     private static boolean testEquals(){
-        byte[] emptyArray = new byte[0];
+        byte[] emptyOneD = new byte[0];
+        // not sure if 'byte[] nullArray = null' is exactly like passing null as an argument
         byte[] nullArray = null;
 
-        // This edge case a1=[] and a2=null should throw an AssertionError when run.
+        // The following edge cases should throw AssertionError:
         // ArrayUtils.equals(emptyArray, nullArray);
+        // ArrayUtils.equals(nullArray, emptyArray);
 
-        byte[] ones = {1, 1, 1, 1, 1};
-        byte[] twenties = {20, 20, 20, 20, 20};
+        byte[] onesOneD = {-1, -1, -1, -1, -1};
+        byte[] twentiesOneD = {20, 20, 20, 20, 20};
 
-        byte[] fourTwenties = {20, 20, 20, 20};
+        byte[] fourTwentiesOneD = {20, 20, 20, 20};
+
+        // Tests for two-dimensional arrays
+
+        byte[][] emptyTwoD = new byte[0][0];
+        byte[][] nullTwoD = null;
+
+        // ArrayUtils.equals(emptyTwoD, nullMatrix);
+        // ArrayUtils.equals(nullMatrix, emptyTwoD);
+
+        byte[][] onesTwoD = {{-1, -1, -1, -1, -1}, {-1, -1, -1, -1, -1}};
+        byte[][] twentiesTwoD = {{20, 20, 20, 20, 20}, {20, 20, 20, 20, 20}, {20, 20, 20, 20, 20}};
+
+        byte[][] fourTwentiesTwoD = {{20, 20, 20, 20}, {20, 20, 20, 20}, {20, 20, 20, 20}};
 
         return ArrayUtils.equals(nullArray, nullArray) &&
-                ArrayUtils.equals(emptyArray, emptyArray) &&
-                ArrayUtils.equals(ones, ones) &&
-                !ArrayUtils.equals(twenties, ones) &&
-                !ArrayUtils.equals(fourTwenties, twenties);
+                ArrayUtils.equals(emptyOneD, emptyOneD) &&
+                ArrayUtils.equals(onesOneD, onesOneD) &&
+                !ArrayUtils.equals(twentiesOneD, onesOneD) &&
+                !ArrayUtils.equals(fourTwentiesOneD, twentiesOneD) &&
+                ArrayUtils.equals(nullTwoD, nullTwoD) &&
+                ArrayUtils.equals(emptyTwoD, emptyTwoD) &&
+                ArrayUtils.equals(onesTwoD, onesTwoD) &&
+                !ArrayUtils.equals(twentiesTwoD, onesTwoD) &&
+                !ArrayUtils.equals(fourTwentiesTwoD, twentiesTwoD);
+
     }
 
     @SuppressWarnings("unused")
