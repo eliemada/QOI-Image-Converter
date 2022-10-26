@@ -40,6 +40,7 @@ public final class Main {
          */
 
         // ========== Test ArrayUtils ==========
+        assert testEquals();
         //assert testWrap();
         //assert testToInt();
         //assert testFromInt();
@@ -115,6 +116,14 @@ public final class Main {
     // ============================================================================================
     // ============================== ArrayUtils examples =========================================
     // ============================================================================================
+
+    private static boolean testEquals(){
+        byte[] zeroArray = new byte[0];
+        byte[] nullArray = null;
+        System.out.println(zeroArray);
+
+        return ArrayUtils.equals(zeroArray, nullArray);
+    }
 
     @SuppressWarnings("unused")
     private static boolean testWrap(){
