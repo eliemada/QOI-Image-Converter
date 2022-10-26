@@ -25,22 +25,17 @@ public final class ArrayUtils {
      * @return (boolean) - true if both arrays have the same content (or both null), false otherwise
      * @throws AssertionError if one of the parameters is null
      */
-    public static boolean equals(byte[] a1, byte[] a2) {
+    public static boolean equals (byte[] a1, byte[] a2) {
 
-        assert !(a1 != null ^ a2 != null) : "Only one of the arrays is null";
+        assert (a1 != null) == (a2 != null) : "Only one of the arrays is null";
+
         // If both are null, then they are equal (only check one array because of the previous assertion)
-        if (a1 == null) {
-            return true;
-        }
+        if (a1 == null) return true;
 
-        if (a1.length != a2.length) {
-            return false;
-        }
+        if (a1.length != a2.length) return false;
 
         for (int i = 0; i < a1.length; i++)
-            if (a1[i] != a2[i]) {
-                return false;
-            }
+            if (a1[i] != a2[i]) return false;
 
         return true;
     }
@@ -69,7 +64,7 @@ public final class ArrayUtils {
      * </ul>
      */
     public static boolean equals(byte[][] a1, byte[][] a2){
-        assert !(a1 != null ^ a2 != null) : "Only one of the arrays is null";
+        assert (a1 != null) == (a2 != null) : "Only one of the arrays is null";
         // If both are null, then they are equal (only check one array because of the previous assertion)
         if (a1 == null) {
             return true;
