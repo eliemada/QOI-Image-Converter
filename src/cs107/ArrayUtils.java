@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Utility class to manipulate arrays.
  * @apiNote First Task of the 2022 Mini Project
  * @author Hamza REMMAL (hamza.remmal@epfl.ch)
- * @version 1.0
+ * @version 1.2
  * @since 1.0
  */
 public final class ArrayUtils {
@@ -194,6 +194,7 @@ public final class ArrayUtils {
      * @throws AssertionError if the input is null or start and length are invalid.
      * start + length should also be smaller than the input's length
      */
+    @SuppressWarnings("unused")
     public static byte[] extract(byte[] input, int start, int length){
         return Helper.fail("Not Implemented");
     }
@@ -208,6 +209,7 @@ public final class ArrayUtils {
      * @throws AssertionError if one of the parameters is null
      * or the sum of the elements in sizes is different from the input's length
      */
+    @SuppressWarnings("unused")
     public static byte[][] partition(byte[] input, int ... sizes) {
         return Helper.fail("Not Implemented");
     }
@@ -227,6 +229,7 @@ public final class ArrayUtils {
      * @throws AssertionError if the input is null
      * or one of the inner arrays of input is null
      */
+    @SuppressWarnings("unused")
     public static byte[][] imageToChannels(int[][] input){
         return Helper.fail("Not Implemented");
     }
@@ -245,6 +248,7 @@ public final class ArrayUtils {
      * or height is invalid
      * or width is invalid
      */
+    @SuppressWarnings("unused")
     public static int[][] channelsToImage(byte[][] input, int height, int width){
         return Helper.fail("Not Implemented");
     }
