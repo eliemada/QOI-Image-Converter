@@ -1,5 +1,7 @@
 package cs107;
 
+import java.util.ArrayList;
+
 /**
  * Utility class to manipulate arrays.
  * @apiNote First Task of the 2022 Mini Project
@@ -146,23 +148,37 @@ public final class ArrayUtils {
 
     /**
      * Concatenate a given sequence of bytes and stores them in an array
-     * @param tabs (byte ...) - Sequence of bytes to store in the array
+     * @param bytes (byte ...) - Sequence of bytes to store in the array
      * @return (byte[]) - Array representation of the sequence
      * @throws AssertionError if the input is null
      */
-    public static byte[] concat(byte ... tabs){
-        return Helper.fail("Not Implemented");
+    public static byte[] concat(byte ... bytes){
+        assert !(bytes == null ) : "The input is null";
+        return bytes;
     }
 
     /**
      * Concatenate a given sequence of arrays into one array
-     * @param bytes (byte[] ...) - Sequence of arrays
+     * @param tabs (byte[] ...) - Sequence of arrays
      * @return (byte[]) - Array representation of the sequence
      * @throws AssertionError if the input is null
      * or one of the inner arrays of input is null.
      */
-    public static byte[] concat(byte[] ... bytes){
-        return Helper.fail("Not Implemented");
+    public static byte[] concat(byte[] ... tabs){
+        assert !(tabs == null ) : "The input is null";
+        for (byte[] b : tabs) {
+            assert !(b == null) : "An input is null";
+        }
+
+        ArrayList<Byte> outputList = new ArrayList<>();
+
+        for (byte[] bArray : tabs)
+            for (byte b : bArray) outputList.add(b);
+
+        byte[] output = new byte[outputList.size()];
+        for (int i = 0; i < outputList.size(); i++) output[i] = outputList.get(i);
+
+        return output;
     }
 
     // ==================================================================================

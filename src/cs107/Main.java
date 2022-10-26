@@ -44,8 +44,8 @@ public final class Main {
         //assert testWrap();
         assert testToInt();
         assert testFromInt();
-        //assert testConcatArrayBytes();
-        //assert testConcatBytes();
+        assert testConcatArrayBytes();
+        assert testConcatBytes();
         //assert testExtract();
         //assert testPartition();
         //assert testImageToChannels();
