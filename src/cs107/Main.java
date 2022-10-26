@@ -118,11 +118,22 @@ public final class Main {
     // ============================================================================================
 
     private static boolean testEquals(){
-        byte[] zeroArray = new byte[0];
+        byte[] emptyArray = new byte[0];
         byte[] nullArray = null;
-        System.out.println(zeroArray);
 
-        return ArrayUtils.equals(zeroArray, nullArray);
+        // This edge case a1=[] and a2=null should throw an AssertionError when run.
+        // ArrayUtils.equals(emptyArray, nullArray);
+
+        byte[] ones = {1, 1, 1, 1, 1};
+        byte[] twenties = {20, 20, 20, 20, 20};
+
+        byte[] fourTwenties = {20, 20, 20, 20};
+
+        return ArrayUtils.equals(nullArray, nullArray) &&
+                ArrayUtils.equals(emptyArray, emptyArray) &&
+                ArrayUtils.equals(ones, ones) &&
+                !ArrayUtils.equals(twenties, ones) &&
+                !ArrayUtils.equals(fourTwenties, twenties);
     }
 
     @SuppressWarnings("unused")
