@@ -220,6 +220,15 @@ public final class ArrayUtils {
      */
     @SuppressWarnings("unused")
     public static byte[][] partition(byte[] input, int ... sizes) {
+        assert !(input == null && sizes == null ): "Tab and Sizes are null";
+        assert !(input == null): "Tab is null";
+        assert !(sizes == null): "Sizes is null";
+        int sum = 0;
+        for (int value : sizes){
+            sum += value;
+        }
+        assert (sum == input.length) : "The Sum of Integers in sizes is different than tab.leghth";
+
         byte[][] partionned= new byte[sizes.length][1];
         int count= 1;
         for (int i = 0; i < sizes.length;++i){
