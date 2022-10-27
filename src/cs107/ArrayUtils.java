@@ -1,7 +1,7 @@
 package cs107;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+// import java.util.Arrays;
 
 /**
  * Utility class to manipulate arrays.
@@ -228,15 +228,15 @@ public final class ArrayUtils {
         for (int value : sizes){
             sum += value;
         }
-        assert (sum == input.length) : "The Sum of Integers in sizes is different than tab.leghth";
+        assert (sum == input.length) : "The Sum of Integers in sizes is different than tab.length";
 
-        byte[][] partionned= new byte[sizes.length][1];
+        byte[][] partitioned = new byte[sizes.length][1];
         int count= 1;
         for (int i = 0; i < sizes.length;++i){
-            partionned[i]= extract(input, count -1,sizes[i]);
+            partitioned[i]= extract(input, count -1,sizes[i]);
             count += sizes[i];
         }
-        return partionned;
+        return partitioned;
     }
 
 
@@ -282,19 +282,18 @@ public final class ArrayUtils {
      */
     @SuppressWarnings("unused")
     public static byte[][] imageToChannels(int[][] input) {
-        boolean testLength = true;
-        assert input != null : "The input is null";
-        for (int i = 0; i < input.length - 1; i++) {
-
-            assert input[i] != null : "At least one input lign is null ! ";
-
-            if (input[i].length != input[i + 1].length) {
-                testLength = false;
-                break;
+        assert input != null && input[0] != null : "The input or its first line is null";
+        int lengthPrevLine = input[0].length;
+        boolean first = true;
+        for (int[] line : input) {
+            assert line != null : "At least one input line is null ! ";
+            if (first) {
+                first = false;
+                continue;
             }
-        }
-        assert testLength : "The ligns are not the same length ! ";
-
+            assert line.length == lengthPrevLine : "The lines are not the same length ! ";
+            lengthPrevLine = line.length;
+            }
 
         byte[][] output = new byte[input.length * input[0].length][4];
         int      count  = 0;
@@ -323,6 +322,13 @@ public final class ArrayUtils {
      */
     @SuppressWarnings("unused")
     public static int[][] channelsToImage(byte[][] input, int height, int width) {
+        assert input != null : "The input is null";
+        assert input.length == height * width : "The input's length is different from height * width";
+        for (byte[] channels : input) {
+            assert channels != null : "At least one channel is null ! ";
+            assert channels.length == 4: "The input contains pixels that do not have 4 channels";
+        }
+
         int[][] output = new int[height][width];
         byte[][] input2 = new byte[input.length][input[0].length];
         for (int i = 0; i < input2.length; i++){
@@ -335,7 +341,7 @@ public final class ArrayUtils {
                 count++;
             }
         }
-        System.out.println(Arrays.deepToString(output));
+        // System.out.println(Arrays.deepToString(output));
         return output;
     }
 
