@@ -210,6 +210,7 @@ public final class ArrayUtils {
     /**
      * Create a partition of the input array.
      * (See handout for more information on how this method works)
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      * @param input (byte[]) - The original array
      * @param sizes (int ...) - Sizes of the partitions
      * @return (byte[][]) - Array of input's partitions.
@@ -219,8 +220,15 @@ public final class ArrayUtils {
      */
     @SuppressWarnings("unused")
     public static byte[][] partition(byte[] input, int ... sizes) {
-        return Helper.fail("Not Implemented");
+        byte[][] partionned= new byte[sizes.length][1];
+        int count= 1;
+        for (int i = 0; i < sizes.length;++i){
+            partionned[i]= extract(input, count -1,sizes[i]);
+            count += sizes[i];
+        }
+        return partionned;
     }
+
 
     // ==================================================================================
     // ============================== ARRAY FORMATTING METHODS ==========================
