@@ -1,6 +1,7 @@
 package cs107;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Utility class to manipulate arrays.
@@ -243,6 +244,30 @@ public final class ArrayUtils {
     // ============================== ARRAY FORMATTING METHODS ==========================
     // ==================================================================================
 
+
+    /**
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
+
+     * @param input is the array we want to permute
+     * @return the input array permuted, by having switched the every column so a ARGB pixel becomes RGBA.
+     * <ul>
+     *     This function is used to permute an array of 4 bytes, it makes sense because we want to go from
+     *      ARGB to
+     *      RGBA, so we need to switch the columns of the array.
+     * </ul>
+     */
+    public static byte[] permutetFromint(byte[] input){
+        byte[] output = {input[1], input[2], input[3], input[0]};
+        return output;
+
+    }
+
+    public static byte[] permuteToInt(byte[] input){
+        byte[] output = {input[3], input[0], input[1], input[2]};
+        return output;
+
+    }
+
     /**
      * Format a 2-dim integer array
      * where each dimension is a direction in the image to
@@ -253,10 +278,33 @@ public final class ArrayUtils {
      * @return (byte [][]) - formatted image data
      * @throws AssertionError if the input is null
      * or one of the inner arrays of input is null
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      */
     @SuppressWarnings("unused")
-    public static byte[][] imageToChannels(int[][] input){
-        return Helper.fail("Not Implemented");
+    public static byte[][] imageToChannels(int[][] input) {
+        boolean testLength = true;
+        assert input != null : "The input is null";
+        for (int i = 0; i < input.length - 1; i++) {
+
+            assert input[i] != null : "At least one input lign is null ! ";
+
+            if (input[i].length != input[i + 1].length) {
+                testLength = false;
+                break;
+            }
+        }
+        assert testLength : "The ligns are not the same length ! ";
+
+
+        byte[][] output = new byte[input.length * input[0].length][4];
+        int      count  = 0;
+        for (int[] value : input) {
+            for (int j = 0; j < input[0].length; j++) {
+                output[count] = permutetFromint(fromInt(value[j]));
+                count++;
+            }
+        }
+        return output;
     }
 
     /**
@@ -274,8 +322,22 @@ public final class ArrayUtils {
      * or width is invalid
      */
     @SuppressWarnings("unused")
-    public static int[][] channelsToImage(byte[][] input, int height, int width){
-        return Helper.fail("Not Implemented");
+    public static int[][] channelsToImage(byte[][] input, int height, int width) {
+        int[][] output = new int[height][width];
+        byte[][] input2 = new byte[input.length][input[0].length];
+        for (int i = 0; i < input2.length; i++){
+            input2[i]= permuteToInt(input[i]);
+        }
+        int count = 0;
+        for (int i = 0; i<output.length;i++){
+            for (int j = 0; j < output[0].length;j++) {
+                output[i][j] = toInt(input2[count]);
+                count++;
+            }
+        }
+        System.out.println(Arrays.deepToString(output));
+        return output;
     }
+
 
 }

@@ -48,6 +48,8 @@ public final class Main {
         assert testConcatBytes();
         assert testExtract();
         assert testPartition();
+        assert testImageToChannels();
+        assert testChannelsToImage();
         //assert testPartition();
         //assert testImageToChannels();
         //assert testChannelsToImage();
