@@ -112,11 +112,12 @@ public final class ArrayUtils {
      * @throws AssertionError if the input is null or the input's length is different from 4
      */
     public static int toInt(byte[] bytes) {
-        assert !(bytes == null ) : "The array is null ";
-        assert (bytes.length == 4 ) : "The array doesn't contain 4 elements";        int output  = 0;
+        assert bytes != null : "The array is null ";
+        assert (bytes.length == 4 ) : "The array does not contain 4 elements";
+        int output  = 0;
         int shift = 24;
-        for (int i = 0; i < bytes.length; i++) {
-            output += bytes[i] << shift;
+        for (byte aByte : bytes) {
+            output += aByte << shift;
             shift -= 8;
         }
 
@@ -258,6 +259,15 @@ public final class ArrayUtils {
         return new byte[]{inputAsByte[1], inputAsByte[2], inputAsByte[3], inputAsByte[0]};
     }
 
+    /**
+     * This is a reverse function of the above and converts a pixel from RGBA byte array to ARGB integer representation.
+     * @param input The pixel in RGBA byte array representation
+     * @return The pixel in ARGB integer representation
+     *
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
+     *
+     */
+
     public static int rgbaToInt(byte[] input){
         byte[] permuted = {input[3], input[0], input[1], input[2]};
         return toInt(permuted);
@@ -277,7 +287,8 @@ public final class ArrayUtils {
      */
     @SuppressWarnings("unused")
     public static byte[][] imageToChannels(int[][] input) {
-        assert input != null && input[0] != null : "The input or its first line is null";
+        assert input != null && input.length > 0 : "The input is null or empty";
+        assert input[0] != null && input[0].length > 0 : "The first line of the input is null or empty";
         int lengthPrevLine = input[0].length;
         boolean first = true;
         for (int[] line : input) {
@@ -287,6 +298,7 @@ public final class ArrayUtils {
                 continue;
             }
             assert line.length == lengthPrevLine : "The lines are not the same length ! ";
+            //noinspection ReassignedVariable
             lengthPrevLine = line.length;
             }
 

@@ -248,12 +248,21 @@ public final class Main {
     @SuppressWarnings("unused")
     private static boolean testImageToChannels(){
         byte[][] output = ArrayUtils.imageToChannels(input);
+        // The following cases should throw AssertionError when uncommented:
+        // ArrayUtils.imageToChannels(null);
+        // ArrayUtils.imageToChannels(new int[0][0]);
+        // ArrayUtils.imageToChannels(new int[1][0]);
+        // ArrayUtils.imageToChannels(new int[][]{{1, 2, 3}, {4, 5}});
         return Arrays.deepEquals(output, formattedInput);
     }
 
     @SuppressWarnings("unused")
     private static boolean testChannelsToImage(){
         int[][]  output = ArrayUtils.channelsToImage(formattedInput, 3, 5);
+        // The following cases should throw AssertionError when uncommented:
+        // ArrayUtils.channelsToImage(null, 1, 1);
+        // ArrayUtils.channelsToImage(new byte[0][0], 1, 1);
+        // ArrayUtils.channelsToImage(new byte[1][0], 1, 1);
         return Arrays.deepEquals(output, input);
     }
 
