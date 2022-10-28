@@ -58,10 +58,10 @@ public final class Main {
         assert testQoiHeader();
         assert testQoiOpRGB();
         assert testQoiOpRGBA();
-        //assert testQoiOpIndex();
-        //assert testQoiOpDiff();
-        //assert testQoiOpLuma();
-        //assert testQoiOpRun();
+        assert testQoiOpIndex();
+        assert testQoiOpDiff();
+        assert testQoiOpLuma();
+        assert testQoiOpRun();
         //assert testEncodeData();
 
         // ========== Test QOIDecoder ==========
@@ -302,6 +302,8 @@ public final class Main {
         byte index = 43;
         byte[] expected = {43};
         byte[] encoding = QOIEncoder.qoiOpIndex(index);
+        // should throw AssertionError when uncommented:
+        // QOIEncoder.qoiOpIndex((byte) 64);
         return Arrays.equals(expected, encoding);
     }
 
@@ -310,6 +312,10 @@ public final class Main {
         byte[] diff = {-2, -1, 0};
         byte[] expected = {70};
         byte[] encoding = QOIEncoder.qoiOpDiff(diff);
+        // should throw AssertionError when uncommented:
+        // QOIEncoder.qoiOpDiff(null);
+        // QOIEncoder.qoiOpDiff(new byte[0]);
+        // QOIEncoder.qoiOpDiff(new byte[]{-2, -1, 5});;
         return Arrays.equals(expected, encoding);
     }
 

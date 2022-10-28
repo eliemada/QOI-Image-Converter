@@ -50,6 +50,7 @@ public final class QOIEncoder {
      */
     public static byte[] qoiOpRGB(byte[] pixel){
         assert pixel.length == 4 : "The length of the input pixel is not 4";
+
         return ArrayUtils.concat(
                 QOISpecification.QOI_OP_RGB_TAG,
                 pixel[QOISpecification.r], pixel[QOISpecification.g], pixel[QOISpecification.b]);
@@ -63,6 +64,7 @@ public final class QOIEncoder {
      */
     public static byte[] qoiOpRGBA(byte[] pixel){
         assert pixel.length == 4 : "The length of the input pixel is not 4";
+
         return ArrayUtils.concat(
                 QOISpecification.QOI_OP_RGBA_TAG,
                 pixel[QOISpecification.r], pixel[QOISpecification.g], pixel[QOISpecification.b], pixel[QOISpecification.a]);
@@ -75,7 +77,9 @@ public final class QOIEncoder {
      * @return (byte[]) - Encoding of the index using the QOI_OP_INDEX schema
      */
     public static byte[] qoiOpIndex(byte index){
-        return Helper.fail("Not Implemented");
+        assert (index < 64) && (index >= 0) : "The index is outside of the allowed range.";
+        // add binary check to make sure output is in format 0b00XXXXXX ?
+        return ArrayUtils.concat(index);
     }
 
     /**
@@ -86,7 +90,18 @@ public final class QOIEncoder {
      * @return (byte[]) - Encoding of the given difference
      */
     public static byte[] qoiOpDiff(byte[] diff){
-        return Helper.fail("Not Implemented");
+        assert diff != null && diff.length == 3 : "The length of the input diff is not 3";
+
+        byte binEncodedOutput = QOISpecification.QOI_OP_DIFF_TAG;
+
+        for (int i = 0; i < 3; i++){
+            assert diff[i] >= -2 && diff[i] <= 1 : "A difference value is invalid.";
+            diff[i] += 2;
+
+            binEncodedOutput += (byte) (diff[i] << (4-i*2));
+        }
+
+        return ArrayUtils.wrap(binEncodedOutput);
     }
 
     /**
@@ -98,7 +113,34 @@ public final class QOIEncoder {
      * @return (byte[]) - Encoding of the given difference
      */
     public static byte[] qoiOpLuma(byte[] diff){
-        return Helper.fail("Not Implemented");
+        assert diff != null && diff.length == 3 : "The length of the input diff is not 3";
+
+        final byte DRi = 0;
+        final byte DGi = 1;
+        final byte DBi = 2;
+
+        final byte LOWER_DG = -33;
+        final byte UPPER_DG = 32;
+        final byte DG_OFFSET = 32;
+
+        final byte LOWER_DRDB = -9;
+        final byte UPPER_DRDB = 8;
+        final byte DRDB_OFFSET = 8;
+
+        byte[] binEncodedOutput = new byte[]{QOISpecification.QOI_OP_LUMA_TAG, 0};
+
+        assert diff[DGi] > LOWER_DG && diff[DGi] < UPPER_DG : "The difference value of the green channel is out of range.";
+        binEncodedOutput[0] += (byte) (diff[DGi] + DG_OFFSET);
+
+        byte drdgDiff = (byte) (diff[DRi] - diff[DGi]);
+        assert drdgDiff > LOWER_DRDB && drdgDiff < UPPER_DRDB : "The difference value of the red channel is out of range.";
+        binEncodedOutput[1] = (byte) ((diff[DRi] - diff[DGi] + DRDB_OFFSET) << 4);
+
+        byte dbdgDiff = (byte) (diff[DBi] - diff[DGi]);
+        assert dbdgDiff > LOWER_DRDB && dbdgDiff < UPPER_DRDB : "The difference value of the blue channel is out of range.";
+        binEncodedOutput[1] += diff[DBi] - diff[DGi] + DRDB_OFFSET;
+
+        return binEncodedOutput;
     }
 
     /**
@@ -108,7 +150,9 @@ public final class QOIEncoder {
      * @return (byte[]) - Encoding of count
      */
     public static byte[] qoiOpRun(byte count){
-        return Helper.fail("Not Implemented");
+        final byte COUNT_OFFSET = -1;
+        assert count > 0 && count < 63 : "The count is outside of the allowed range.";
+        return ArrayUtils.wrap((byte) (QOISpecification.QOI_OP_RUN_TAG + (count + COUNT_OFFSET)));
     }
 
     // ==================================================================================
