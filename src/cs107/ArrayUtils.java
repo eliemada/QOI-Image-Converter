@@ -262,11 +262,31 @@ public final class ArrayUtils {
 
     }
 
+    /**
+     * This function has been created for the modularity of the code, it has 2 versions, one normal that
+     * switches the columns of an array to go from an RGBA to an ARGB pixel. A surcharged version has been
+     * added, so I can instantly apply to the {@code channelsToImage()} method.
+     *
+     *
+     * @param input the array we want to permute
+     * @return the array permuted
+     *
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
+     *
+     */
     public static byte[] permuteToInt(byte[] input){
         byte[] output = {input[3], input[0], input[1], input[2]};
         return output;
 
     }
+
+    /**
+     *
+     * @param input a 2D array in which we want to permute the columns so we can create the inverse method
+     *              of imageToChannels.
+     * @return the 2D array in which every array has been permuted.
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
+     */
     public static byte[][] permuteToInt(byte[][] input){
         byte[][] output = new byte[input.length][input[0].length];
         for (int i = 0; i < output.length; i++){
