@@ -26,7 +26,16 @@ public final class QOIEncoder {
      * @return (byte[]) - Corresponding "Quite Ok Image" Header
      */
     public static byte[] qoiHeader(Helper.Image image){
-        return Helper.fail("Not Implemented");
+        assert image != null;
+        assert image.channels() == QOISpecification.RGB || image.channels() == QOISpecification.RGBA;
+        assert image.color_space() == QOISpecification.sRGB || image.color_space() == QOISpecification.ALL;
+        byte[] header = ArrayUtils.concat(
+                QOISpecification.QOI_MAGIC,
+                ArrayUtils.fromInt(image.data()[0].length),
+                ArrayUtils.fromInt(image.data().length),
+                ArrayUtils.concat(image.channels(), image.color_space()));
+        assert header.length == 14;
+        return header;
     }
 
     // ==================================================================================

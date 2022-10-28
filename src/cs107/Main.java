@@ -55,7 +55,7 @@ public final class Main {
         //assert testChannelsToImage();
 
         // ========== Test QOIEncoder ==========
-        //assert testQoiHeader();
+        assert testQoiHeader();
         //assert testQoiOpRGB();
         //assert testQoiOpRGBA();
         //assert testQoiOpIndex();
@@ -73,7 +73,7 @@ public final class Main {
         //assert testDecodeQoiOpRun();
         //assert testDecodeData();
 
-        System.out.println("All the tests passes. Congratulations");
+        System.out.println("All the tests passed. Congratulations");
     }
 
     // ============================================================================================
@@ -214,7 +214,7 @@ public final class Main {
         byte[] extracted2 = ArrayUtils.extract(tab, 7, 1);
         byte[] expected = {3, 4, 5, 6, 7};
         byte[] expected2 = {8};
-        // The following cases should throw AssertionError when uncommented:
+        // Should throw AsertionError when uncommented:
         // ArrayUtils.extract(null, 1, 1);
         // ArrayUtils.extract(tab, 1, 9);
         // ArrayUtils.extract(tab, 9, -1);
@@ -226,6 +226,9 @@ public final class Main {
         byte[] tab = {1, 2, 3, 4, 5, 6, 7, 8, 9};
         byte[][] partitions = ArrayUtils.partition(tab, 3, 1, 2, 1, 2);
         byte[][] expected = {{1, 2, 3}, {4}, {5, 6}, {7}, {8, 9}};
+        // Should throw AsertionError when uncommented:
+        // ArrayUtils.partition(null, 1, 1);
+        // ArrayUtils.partition(tab, 9, 1);
         return Arrays.deepEquals(expected, partitions);
     }
 
@@ -248,7 +251,7 @@ public final class Main {
     @SuppressWarnings("unused")
     private static boolean testImageToChannels(){
         byte[][] output = ArrayUtils.imageToChannels(input);
-        // The following cases should throw AssertionError when uncommented:
+        // Should throw AsertionError when uncommented:
         // ArrayUtils.imageToChannels(null);
         // ArrayUtils.imageToChannels(new int[0][0]);
         // ArrayUtils.imageToChannels(new int[1][0]);
@@ -259,7 +262,7 @@ public final class Main {
     @SuppressWarnings("unused")
     private static boolean testChannelsToImage(){
         int[][]  output = ArrayUtils.channelsToImage(formattedInput, 3, 5);
-        // The following cases should throw AssertionError when uncommented:
+        // Should throw AsertionError when uncommented:
         // ArrayUtils.channelsToImage(null, 1, 1);
         // ArrayUtils.channelsToImage(new byte[0][0], 1, 1);
         // ArrayUtils.channelsToImage(new byte[1][0], 1, 1);
