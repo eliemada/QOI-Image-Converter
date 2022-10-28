@@ -221,9 +221,8 @@ public final class ArrayUtils {
      */
     @SuppressWarnings("unused")
     public static byte[][] partition(byte[] input, int ... sizes) {
-        assert !(input == null && sizes == null ): "Tab and Sizes are null";
-        assert !(input == null): "Tab is null";
-        assert !(sizes == null): "Sizes is null";
+        assert input != null: "Tab is null";
+        assert sizes != null: "Sizes is null";
         int sum = 0;
         for (int value : sizes){
             sum += value;
@@ -231,10 +230,10 @@ public final class ArrayUtils {
         assert (sum == input.length) : "The Sum of Integers in sizes is different than tab.length";
 
         byte[][] partitioned = new byte[sizes.length][1];
-        int count= 1;
-        for (int i = 0; i < sizes.length;++i){
-            partitioned[i]= extract(input, count -1,sizes[i]);
-            count += sizes[i];
+        int start = 0;
+        for (int i = 0; i < sizes.length; ++i){
+            partitioned[i]= extract(input, start,sizes[i]);
+            start += sizes[i];
         }
         return partitioned;
     }
@@ -256,16 +255,14 @@ public final class ArrayUtils {
      *      RGBA, so we need to switch the columns of the array.
      * </ul>
      */
-    public static byte[] permutetFromint(byte[] input){
-        byte[] output = {input[1], input[2], input[3], input[0]};
-        return output;
-
+    public static byte[] rgbaFromInt(int input){
+        byte[] inputAsByte = fromInt(input);
+        return new byte[]{inputAsByte[1], inputAsByte[2], inputAsByte[3], inputAsByte[0]};
     }
 
-    public static byte[] permuteToInt(byte[] input){
-        byte[] output = {input[3], input[0], input[1], input[2]};
-        return output;
-
+    public static int rgbaToInt(byte[] input){
+        byte[] permuted = {input[3], input[0], input[1], input[2]};
+        return toInt(permuted);
     }
 
     /**
@@ -296,11 +293,11 @@ public final class ArrayUtils {
             }
 
         byte[][] output = new byte[input.length * input[0].length][4];
-        int      count  = 0;
-        for (int[] value : input) {
-            for (int j = 0; j < input[0].length; j++) {
-                output[count] = permutetFromint(fromInt(value[j]));
-                count++;
+        int flatIndex = 0;
+        for (int[] line : input) {
+            for (int pixel : line) {
+                output[flatIndex] = rgbaFromInt(pixel);
+                flatIndex++;
             }
         }
         return output;
@@ -330,18 +327,15 @@ public final class ArrayUtils {
         }
 
         int[][] output = new int[height][width];
-        byte[][] input2 = new byte[input.length][input[0].length];
-        for (int i = 0; i < input2.length; i++){
-            input2[i]= permuteToInt(input[i]);
-        }
-        int count = 0;
+
+        int flatIndex = 0;
         for (int i = 0; i<output.length;i++){
             for (int j = 0; j < output[0].length;j++) {
-                output[i][j] = toInt(input2[count]);
-                count++;
+                output[i][j] = rgbaToInt(input[flatIndex]);
+                flatIndex++;
             }
         }
-        // System.out.println(Arrays.deepToString(output));
+
         return output;
     }
 
