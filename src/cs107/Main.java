@@ -63,6 +63,7 @@ public final class Main {
         assert testQoiOpLuma();
         assert testQoiOpRun();
         assert testEncodeData();
+        pngToQoi("references/beach.png","zebi.qoi");
 
         // ========== Test QOIDecoder ==========
         //assert testDecodeHeader();

@@ -308,7 +308,8 @@ public final class QOIEncoder {
      * TO CREATE THE FILE, YOU'LL NEED TO CALL Helper::write
      */
     public static byte[] qoiFile(Helper.Image image) {
-        return Helper.fail("Not Implemented");
+        return ArrayUtils.concat(qoiHeader(image),encodeData(ArrayUtils.imageToChannels(image.data())),
+                QOISpecification.QOI_EOF);
     }
 
 }
