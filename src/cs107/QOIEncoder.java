@@ -210,53 +210,54 @@ public final class QOIEncoder {
      * @param image (byte[][]) - Formatted image to encode
      * @return (byte[]) - "Quite Ok Image" representation of the image
      */
-    public static byte[] encodeData(byte[][] image){
+    public static byte[] encodeData(byte[][] image) {
+        // Initialization
         byte[] prevPixel = QOISpecification.START_PIXEL;
         byte[][] hashTable = new byte[64][4];
         int runCounter = 0;
-
         ArrayList<byte[]> encodedPixels = new ArrayList<>();
-        for (byte[] pixel : image){
-            if (ArrayUtils.equals(pixel, prevPixel)){
+
+        // Pixel Processing
+        for (byte[] pixel : image) {
+
+            // ---QOI_OP_RUN---
+            if (ArrayUtils.equals(pixel, prevPixel)) {
                 runCounter++;
                 // might benefit from normal for-loop with index
-                if (runCounter == 62 || ArrayUtils.equals(pixel,image[image.length-1])){
+                if (runCounter == 62 || ArrayUtils.equals(pixel, image[image.length - 1])) {
                     encodedPixels.add(qoiOpRun((byte) runCounter));
                     runCounter = 0;
                 }
-                prevPixel = pixel;
-                continue;
+            } else {
+                if (runCounter > 0) {
+                    encodedPixels.add(qoiOpRun((byte) runCounter));
+                    runCounter = 0;
+                }
 
-            } else if (runCounter > 0){
-                encodedPixels.add(qoiOpRun((byte) runCounter));
-                runCounter = 0;
-            }
+                // ---QOI_OP_INDEX---
+                if (ArrayUtils.equals(pixel, hashTable[QOISpecification.hash(pixel)])) {
+                    encodedPixels.add(qoiOpIndex(QOISpecification.hash(pixel)));
+                } else {
+                    hashTable[QOISpecification.hash(pixel)] = pixel;
 
-            if (ArrayUtils.equals(pixel, hashTable[QOISpecification.hash(pixel)])){
-                encodedPixels.add(qoiOpIndex(QOISpecification.hash(pixel)));
-                prevPixel = pixel;
-                continue;
-                } else hashTable[QOISpecification.hash(pixel)] = pixel;
+                    // ---QOI_OP_DIFF---
+                    // improve performance by not doubly computing the diff in positive cases?
+                    if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a] && isSmallRGBdiff(pixel, prevPixel)) {
+                        encodedPixels.add(qoiOpDiff(calcRGBdiff(pixel, prevPixel)));
 
-            // improve performance by not doubly computing the diff in positive cases?
-            if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a] && isSmallRGBdiff(pixel, prevPixel)){
-                encodedPixels.add(qoiOpDiff(calcRGBdiff(pixel, prevPixel)));
-                prevPixel = pixel;
-                continue;
-            }
-            if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a] && isLumaDiff(pixel, prevPixel)){
-                // old diff method, subject to change
-                encodedPixels.add(qoiOpLuma(calcRGBdiff(pixel, prevPixel)));
-                prevPixel = pixel;
-                continue;
-            }
+                    // ---QOI_OP_LUMA---
+                    } else if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a] && isLumaDiff(pixel, prevPixel)) {
+                        // old diff method, subject to change
+                        encodedPixels.add(qoiOpLuma(calcRGBdiff(pixel, prevPixel)));
 
-            if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a]){
-                encodedPixels.add(qoiOpRGB(pixel));
-                prevPixel = pixel;
-                continue;
+                    // ---QOI_OP_RGB---
+                    } else if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a]) {
+                        encodedPixels.add(qoiOpRGB(pixel));
+
+                    // ---QOI_OP_RGBA---
+                    } else encodedPixels.add(qoiOpRGBA(pixel));
+                }
             }
-            encodedPixels.add(qoiOpRGBA(pixel));
             prevPixel = pixel;
         }
 
