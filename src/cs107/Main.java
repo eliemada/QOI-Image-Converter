@@ -41,7 +41,7 @@ public final class Main {
 
         // ========== Test ArrayUtils ==========
         assert testEquals();
-        //assert testWrap();
+        assert testWrap();
         assert testToInt();
         assert testFromInt();
         assert testConcatArrayBytes();
@@ -50,14 +50,14 @@ public final class Main {
         assert testPartition();
         assert testImageToChannels();
         assert testChannelsToImage();
-        //assert testPartition();
-        //assert testImageToChannels();
-        //assert testChannelsToImage();
+        assert testPartition();
+        assert testImageToChannels();
+        assert testChannelsToImage();
 
         // ========== Test QOIEncoder ==========
         assert testQoiHeader();
-        //assert testQoiOpRGB();
-        //assert testQoiOpRGBA();
+        assert testQoiOpRGB();
+        assert testQoiOpRGBA();
         //assert testQoiOpIndex();
         //assert testQoiOpDiff();
         //assert testQoiOpLuma();

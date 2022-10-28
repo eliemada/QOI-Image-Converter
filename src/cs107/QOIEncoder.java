@@ -26,9 +26,9 @@ public final class QOIEncoder {
      * @return (byte[]) - Corresponding "Quite Ok Image" Header
      */
     public static byte[] qoiHeader(Helper.Image image){
-        assert image != null;
-        assert image.channels() == QOISpecification.RGB || image.channels() == QOISpecification.RGBA;
-        assert image.color_space() == QOISpecification.sRGB || image.color_space() == QOISpecification.ALL;
+        assert image != null : "image is null";
+        assert image.channels() == QOISpecification.RGB || image.channels() == QOISpecification.RGBA : "The image channels are corrupted";
+        assert image.color_space() == QOISpecification.sRGB || image.color_space() == QOISpecification.ALL: "The image color space is corrupted";
         byte[] header = ArrayUtils.concat(
                 QOISpecification.QOI_MAGIC,
                 ArrayUtils.fromInt(image.data()[0].length),
@@ -49,7 +49,10 @@ public final class QOIEncoder {
      * @return (byte[]) - Encoding of the pixel using the QOI_OP_RGB schema
      */
     public static byte[] qoiOpRGB(byte[] pixel){
-        return Helper.fail("Not Implemented");
+        assert pixel.length == 4 : "The length of the input pixel is not 4";
+        return ArrayUtils.concat(
+                QOISpecification.QOI_OP_RGB_TAG,
+                pixel[QOISpecification.r], pixel[QOISpecification.g], pixel[QOISpecification.b]);
     }
 
     /**
@@ -59,7 +62,10 @@ public final class QOIEncoder {
      * @return (byte[]) Encoding of the pixel using the QOI_OP_RGBA schema
      */
     public static byte[] qoiOpRGBA(byte[] pixel){
-        return Helper.fail("Not Implemented");
+        assert pixel.length == 4 : "The length of the input pixel is not 4";
+        return ArrayUtils.concat(
+                QOISpecification.QOI_OP_RGBA_TAG,
+                pixel[QOISpecification.r], pixel[QOISpecification.g], pixel[QOISpecification.b], pixel[QOISpecification.a]);
     }
 
     /**
