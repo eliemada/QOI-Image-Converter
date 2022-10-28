@@ -1,5 +1,7 @@
 package cs107;
 
+import java.util.ArrayList;
+
 /**
  * "Quite Ok Image" Encoder
  * @apiNote Second task of the 2022 Mini Project
@@ -79,7 +81,7 @@ public final class QOIEncoder {
     public static byte[] qoiOpIndex(byte index){
         assert (index < 64) && (index >= 0) : "The index is outside of the allowed range.";
         // add binary check to make sure output is in format 0b00XXXXXX ?
-        return ArrayUtils.concat(index);
+        return ArrayUtils.wrap((byte) (QOISpecification.QOI_OP_INDEX_TAG + index));
     }
 
     /**
@@ -112,6 +114,8 @@ public final class QOIEncoder {
      * (See the handout for the constraints)
      * @return (byte[]) - Encoding of the given difference
      */
+
+    // still expects primitive RGB diff, will modularize
     public static byte[] qoiOpLuma(byte[] diff){
         assert diff != null && diff.length == 3 : "The length of the input diff is not 3";
 
@@ -156,6 +160,47 @@ public final class QOIEncoder {
     }
 
     // ==================================================================================
+    // =========================== Helper methods for encodeData  =======================
+    // ==================================================================================
+
+    // this method calculates the simple difference between the respective channels (only RGB) of 2 input pixels
+    // wrap-around byte values are expected
+    // note: could be improved to return boolean with surcharge problem from the lesson
+    public static byte[] calcRGBdiff(byte[] pixel1, byte[] pixel2){
+        byte[] pixelDiff = new byte[3];
+        for (int i = 0; i < 3; i++)
+            pixelDiff[i] = (byte) (pixel1[i] - pixel2[i]);
+        return pixelDiff;
+    }
+
+    // this calculates the RGB differences in the QoiOpLuma format
+    // wrap-around byte values as always
+    // returns byte-array DR-DG, DG, DB-DG !!
+    public static byte[] calcLumaDiff(byte[] pixel1, byte[] pixel2){
+        byte[] pixelDiff = calcRGBdiff(pixel1, pixel2);
+        return new byte[]{(byte) (pixelDiff[QOISpecification.r] - pixelDiff[QOISpecification.g]), pixelDiff[QOISpecification.g], (byte) (pixelDiff[QOISpecification.b] - pixelDiff[QOISpecification.g])};
+    }
+
+    // this is like a reverse surcharge of calcRGBdiff with the QoiOpDiff constraints (see above for ref. to lesson problem)
+    public static boolean isSmallRGBdiff(byte[] pixel1, byte[] pixel2){
+        byte[] pixelDiff = calcRGBdiff(pixel1, pixel2);
+        for (byte diff : pixelDiff)
+            if (diff < -2 || diff > 1)
+                return false;
+        return true;
+    }
+
+    // this is like a reverse surcharge of calcRGBdiff with the QoiOpLuma constraints
+    // wrap-around byte values are expected
+    public static boolean isLumaDiff(byte[] pixel1, byte[] pixel2){
+        byte[] lumaDiff = calcLumaDiff(pixel1, pixel2);
+        // c moche, je vais le faire plus clean:
+        // reminder: add byte casts somewhere
+        // will let QoiOpLuma share this method somehow
+        return ((lumaDiff[QOISpecification.r] > -9) && (lumaDiff[QOISpecification.r] < 8) && lumaDiff[QOISpecification.g] > -33) && (lumaDiff[QOISpecification.g] < 32) && (lumaDiff[QOISpecification.b] > -9) && (lumaDiff[QOISpecification.b] < 8);
+    }
+
+    // ==================================================================================
     // ============================== GLOBAL ENCODING METHODS  ==========================
     // ==================================================================================
 
@@ -166,7 +211,60 @@ public final class QOIEncoder {
      * @return (byte[]) - "Quite Ok Image" representation of the image
      */
     public static byte[] encodeData(byte[][] image){
-        return Helper.fail("Not Implemented");
+        byte[] prevPixel = QOISpecification.START_PIXEL;
+        byte[][] hashTable = new byte[64][4];
+        int runCounter = 0;
+
+        ArrayList<byte[]> encodedPixels = new ArrayList<>();
+        for (byte[] pixel : image){
+            if (ArrayUtils.equals(pixel, prevPixel)){
+                runCounter++;
+                // might benefit from normal for-loop with index
+                if (runCounter == 62 || ArrayUtils.equals(pixel,image[image.length-1])){
+                    encodedPixels.add(qoiOpRun((byte) runCounter));
+                    runCounter = 0;
+                }
+                prevPixel = pixel;
+                continue;
+
+            } else if (runCounter > 0){
+                encodedPixels.add(qoiOpRun((byte) runCounter));
+                runCounter = 0;
+            }
+
+            if (ArrayUtils.equals(pixel, hashTable[QOISpecification.hash(pixel)])){
+                encodedPixels.add(qoiOpIndex(QOISpecification.hash(pixel)));
+                prevPixel = pixel;
+                continue;
+                } else hashTable[QOISpecification.hash(pixel)] = pixel;
+
+            // improve performance by not doubly computing the diff in positive cases?
+            if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a] && isSmallRGBdiff(pixel, prevPixel)){
+                encodedPixels.add(qoiOpDiff(calcRGBdiff(pixel, prevPixel)));
+                prevPixel = pixel;
+                continue;
+            }
+            if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a] && isLumaDiff(pixel, prevPixel)){
+                // old diff method, subject to change
+                encodedPixels.add(qoiOpLuma(calcRGBdiff(pixel, prevPixel)));
+                prevPixel = pixel;
+                continue;
+            }
+
+            if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a]){
+                encodedPixels.add(qoiOpRGB(pixel));
+                prevPixel = pixel;
+                continue;
+            }
+            encodedPixels.add(qoiOpRGBA(pixel));
+            prevPixel = pixel;
+        }
+
+        // manual array flattening, then concatenation. should be done cleaner
+        byte[][] encodedImage = new byte[encodedPixels.size()][];
+        for (int i = 0; i < encodedPixels.size(); i++)
+            encodedImage[i] = encodedPixels.get(i);
+        return ArrayUtils.concat(encodedImage);
     }
 
     /**
