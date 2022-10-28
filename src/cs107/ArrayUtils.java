@@ -295,7 +295,6 @@ public final class ArrayUtils {
         }
         assert testLength : "The ligns are not the same length ! ";
 
-
         byte[][] output = new byte[input.length * input[0].length][4];
         int      count  = 0;
         for (int[] value : input) {
