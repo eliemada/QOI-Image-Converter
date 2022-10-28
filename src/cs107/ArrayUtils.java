@@ -245,15 +245,13 @@ public final class ArrayUtils {
 
 
     /**
+     * These functions have been created for the modularity of the code.
+     * They are used to convert one pixel from an ARGB integer representation to an RGBA byte array and back.
+     * @param input The pixel in ARGB integer representation
+     * @return The pixel in RGBA byte array representation
+     *
      * @author Elie BRUNO (elie.bruno@epfl.ch)
-
-     * @param input is the array we want to permute
-     * @return the input array permuted, by having switched the every column so a ARGB pixel becomes RGBA.
-     * <ul>
-     *     This function is used to permute an array of 4 bytes, it makes sense because we want to go from
-     *      ARGB to
-     *      RGBA, so we need to switch the columns of the array.
-     * </ul>
+     *
      */
     public static byte[] rgbaFromInt(int input){
         byte[] inputAsByte = fromInt(input);
