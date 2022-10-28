@@ -328,6 +328,12 @@ public final class ArrayUtils {
      */
     @SuppressWarnings("unused")
     public static int[][] channelsToImage(byte[][] input, int height, int width) {
+        assert input != null : "The input is null";
+        assert input.length == height * width : "The input's length is different from height * width";
+        for (byte[] channels : input) {
+            assert channels != null : "At least one channel is null ! ";
+            assert channels.length == 4: "The input contains pixels that do not have 4 channels";
+        }
         int[][] output = new int[height][width];
         input = permuteToInt(input);
         int count = 0;
