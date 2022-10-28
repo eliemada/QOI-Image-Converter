@@ -267,6 +267,13 @@ public final class ArrayUtils {
         return output;
 
     }
+    public static byte[][] permuteToInt(byte[][] input){
+        byte[][] output = new byte[input.length][input[0].length];
+        for (int i = 0; i < output.length; i++){
+            output[i]= permuteToInt(input[i]);
+        }
+        return output;
+    }
 
     /**
      * Format a 2-dim integer array
@@ -294,8 +301,6 @@ public final class ArrayUtils {
             }
         }
         assert testLength : "The ligns are not the same length ! ";
-
-
         byte[][] output = new byte[input.length * input[0].length][4];
         int      count  = 0;
         for (int[] value : input) {
@@ -324,14 +329,11 @@ public final class ArrayUtils {
     @SuppressWarnings("unused")
     public static int[][] channelsToImage(byte[][] input, int height, int width) {
         int[][] output = new int[height][width];
-        byte[][] input2 = new byte[input.length][input[0].length];
-        for (int i = 0; i < input2.length; i++){
-            input2[i]= permuteToInt(input[i]);
-        }
+        input = permuteToInt(input);
         int count = 0;
         for (int i = 0; i<output.length;i++){
             for (int j = 0; j < output[0].length;j++) {
-                output[i][j] = toInt(input2[count]);
+                output[i][j] = toInt(input[count]);
                 count++;
             }
         }
