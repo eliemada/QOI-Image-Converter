@@ -1,7 +1,7 @@
 package cs107;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+// import java.util.Arrays;
 
 /**
  * Utility class to manipulate arrays.
@@ -221,22 +221,21 @@ public final class ArrayUtils {
      */
     @SuppressWarnings("unused")
     public static byte[][] partition(byte[] input, int ... sizes) {
-        assert !(input == null && sizes == null ): "Tab and Sizes are null";
-        assert !(input == null): "Tab is null";
-        assert !(sizes == null): "Sizes is null";
+        assert input != null: "Tab is null";
+        assert sizes != null: "Sizes is null";
         int sum = 0;
         for (int value : sizes){
             sum += value;
         }
-        assert (sum == input.length) : "The Sum of Integers in sizes is different than tab.leghth";
+        assert (sum == input.length) : "The Sum of Integers in sizes is different than tab.length";
 
-        byte[][] partionned= new byte[sizes.length][1];
-        int count= 1;
-        for (int i = 0; i < sizes.length;++i){
-            partionned[i]= extract(input, count -1,sizes[i]);
-            count += sizes[i];
+        byte[][] partitioned = new byte[sizes.length][1];
+        int start = 0;
+        for (int i = 0; i < sizes.length; ++i){
+            partitioned[i]= extract(input, start,sizes[i]);
+            start += sizes[i];
         }
-        return partionned;
+        return partitioned;
     }
 
 
@@ -256,16 +255,14 @@ public final class ArrayUtils {
      *      RGBA, so we need to switch the columns of the array.
      * </ul>
      */
-    public static byte[] permutetFromint(byte[] input){
-        byte[] output = {input[1], input[2], input[3], input[0]};
-        return output;
-
+    public static byte[] rgbaFromInt(int input){
+        byte[] inputAsByte = fromInt(input);
+        return new byte[]{inputAsByte[1], inputAsByte[2], inputAsByte[3], inputAsByte[0]};
     }
 
-    public static byte[] permuteToInt(byte[] input){
-        byte[] output = {input[3], input[0], input[1], input[2]};
-        return output;
-
+    public static int rgbaToInt(byte[] input){
+        byte[] permuted = {input[3], input[0], input[1], input[2]};
+        return toInt(permuted);
     }
 
     /**
@@ -282,25 +279,25 @@ public final class ArrayUtils {
      */
     @SuppressWarnings("unused")
     public static byte[][] imageToChannels(int[][] input) {
-        boolean testLength = true;
-        assert input != null : "The input is null";
-        for (int i = 0; i < input.length - 1; i++) {
-
-            assert input[i] != null : "At least one input lign is null ! ";
-
-            if (input[i].length != input[i + 1].length) {
-                testLength = false;
-                break;
+        assert input != null && input[0] != null : "The input or its first line is null";
+        int lengthPrevLine = input[0].length;
+        boolean first = true;
+        for (int[] line : input) {
+            assert line != null : "At least one input line is null ! ";
+            if (first) {
+                first = false;
+                continue;
             }
-        }
-        assert testLength : "The ligns are not the same length ! ";
+            assert line.length == lengthPrevLine : "The lines are not the same length ! ";
+            lengthPrevLine = line.length;
+            }
 
         byte[][] output = new byte[input.length * input[0].length][4];
-        int      count  = 0;
-        for (int[] value : input) {
-            for (int j = 0; j < input[0].length; j++) {
-                output[count] = permutetFromint(fromInt(value[j]));
-                count++;
+        int flatIndex = 0;
+        for (int[] line : input) {
+            for (int pixel : line) {
+                output[flatIndex] = rgbaFromInt(pixel);
+                flatIndex++;
             }
         }
         return output;
@@ -322,19 +319,23 @@ public final class ArrayUtils {
      */
     @SuppressWarnings("unused")
     public static int[][] channelsToImage(byte[][] input, int height, int width) {
-        int[][] output = new int[height][width];
-        byte[][] input2 = new byte[input.length][input[0].length];
-        for (int i = 0; i < input2.length; i++){
-            input2[i]= permuteToInt(input[i]);
+        assert input != null : "The input is null";
+        assert input.length == height * width : "The input's length is different from height * width";
+        for (byte[] channels : input) {
+            assert channels != null : "At least one channel is null ! ";
+            assert channels.length == 4: "The input contains pixels that do not have 4 channels";
         }
-        int count = 0;
+
+        int[][] output = new int[height][width];
+
+        int flatIndex = 0;
         for (int i = 0; i<output.length;i++){
             for (int j = 0; j < output[0].length;j++) {
-                output[i][j] = toInt(input2[count]);
-                count++;
+                output[i][j] = rgbaToInt(input[flatIndex]);
+                flatIndex++;
             }
         }
-        System.out.println(Arrays.deepToString(output));
+
         return output;
     }
 
