@@ -124,7 +124,6 @@ public final class QOIEncoder {
      *                        (See the handout for the constraints)
      */
 
-    // still expects primitive RGB diff, will modularize
     public static byte[] qoiOpLuma(byte[] diff) {
         assert diff != null && diff.length == 3 : "The length of the input diff is not 3";
 
@@ -132,29 +131,17 @@ public final class QOIEncoder {
         final byte DGi         = 1;
         final byte DBi         = 2;
 
-        final byte LOWER_DG    = -33;
-        final byte UPPER_DG    = 32;
         final byte DG_OFFSET   = 32;
-
-        final byte LOWER_DRDB  = -9;
-        final byte UPPER_DRDB  = 8;
         final byte DRDB_OFFSET = 8;
 
         byte[] binEncodedOutput = new byte[]{QOISpecification.QOI_OP_LUMA_TAG, 0};
+        byte[] lumaDiff = calcLumaDiff(diff);
 
-        assert diff[DGi] > LOWER_DG && diff[DGi] < UPPER_DG : "The difference value of the green channel is"
-                                                              + " out of range";
-        binEncodedOutput[0] += (byte) (diff[DGi] + DG_OFFSET);
+        assert isLumaDiff(lumaDiff) : "The RGB difference is out of this block's accepted range.";
 
-        byte drdgDiff = (byte) (diff[DRi] - diff[DGi]);
-        assert drdgDiff > LOWER_DRDB && drdgDiff < UPPER_DRDB : "The difference value of the red channel is"
-                                                                + " out of range";
-        binEncodedOutput[1] = (byte) ((diff[DRi] - diff[DGi] + DRDB_OFFSET) << 4);
-
-        byte dbdgDiff = (byte) (diff[DBi] - diff[DGi]);
-        assert dbdgDiff > LOWER_DRDB && dbdgDiff < UPPER_DRDB : "The difference value of the blue channel "
-                                                                + "is out of range";
-        binEncodedOutput[1] += diff[DBi] - diff[DGi] + DRDB_OFFSET;
+        binEncodedOutput[0] += (byte) (lumaDiff[DGi] + DG_OFFSET);
+        binEncodedOutput[1] = (byte) ((lumaDiff[DRi] + DRDB_OFFSET) << 4);
+        binEncodedOutput[1] += lumaDiff[DBi] + DRDB_OFFSET;
 
         return binEncodedOutput;
     }
@@ -173,11 +160,10 @@ public final class QOIEncoder {
     }
 
     // ==================================================================================
-    // =========================== Helper methods for encodeData  =======================
+    // =================================== Helper methods ===============================
     // ==================================================================================
 
-    // this method calculates the simple difference between the respective channels (only RGB) of 2 input pixels
-    // wrap-around byte values are expected
+    // this method calculates the difference between two raw input pixels' respective R, G and B channels
     // note: could be improved to return boolean with surcharge problem from the lesson
     public static byte[] calcRGBdiff(byte[] pixel1, byte[] pixel2) {
         byte[] pixelDiff = new byte[3];
@@ -188,13 +174,21 @@ public final class QOIEncoder {
 
     // this calculates the RGB differences in the QoiOpLuma format
     // wrap-around byte values as always
-    // returns byte-array DR-DG, DG, DB-DG !!
-    public static byte[] calcLumaDiff(byte[] pixel1, byte[] pixel2) {
-        byte[] pixelDiff = calcRGBdiff(pixel1, pixel2);
-        return new byte[]{(byte) (pixelDiff[QOISpecification.r] - pixelDiff[QOISpecification.g]), pixelDiff[QOISpecification.g], (byte) (pixelDiff[QOISpecification.b] - pixelDiff[QOISpecification.g])};
+    // returns byte-array DR-DG, DG, DB-DG (consistent with R G B).
+    public static byte[] calcLumaDiff(byte[] pixelDiff) {
+        return new byte[]{
+                (byte) (pixelDiff[QOISpecification.r] - pixelDiff[QOISpecification.g]),
+                pixelDiff[QOISpecification.g],
+                (byte) (pixelDiff[QOISpecification.b] - pixelDiff[QOISpecification.g])};
     }
 
-    // this is like a reverse surcharge of calcRGBdiff with the QoiOpDiff constraints (see above for ref. to lesson problem)
+    // surcharge for raw pixel input
+    public static byte[] calcLumaDiff(byte[] pixel1, byte[] pixel2) {
+        byte[] pixelDiff = calcRGBdiff(pixel1, pixel2);
+        return calcLumaDiff(pixelDiff);
+    }
+
+    // checks the QoiOpDiff block constraints on raw pixel input
     public static boolean isSmallRGBdiff(byte[] pixel1, byte[] pixel2) {
         byte[] pixelDiff = calcRGBdiff(pixel1, pixel2);
         for (byte diff : pixelDiff)
@@ -204,22 +198,31 @@ public final class QOIEncoder {
         return true;
     }
 
-    // this is like a reverse surcharge of calcRGBdiff with the QoiOpLuma constraints
-    // wrap-around byte values are expected
+    // checks the QoiOpLuma block constraints on pixel diff array input
+    // the R G B indexes are the same as in the QOI spec, maybe remove the index constants?
+    public static boolean isLumaDiff(byte[] lumaDiff) {
+        final byte DRi         = 0;
+        final byte DGi         = 1;
+        final byte DBi         = 2;
+
+        final byte LOWER_DG    = -33;
+        final byte UPPER_DG    = 32;
+
+        final byte LOWER_DRDB  = -9;
+        final byte UPPER_DRDB  = 8;
+
+        return (
+                lumaDiff[DRi] > LOWER_DRDB && lumaDiff[DRi] < UPPER_DRDB &&
+                lumaDiff[DGi] > LOWER_DG && lumaDiff[DGi] < UPPER_DG &&
+                lumaDiff[DBi] > LOWER_DRDB && lumaDiff[DBi] < UPPER_DRDB
+        );
+    }
+
+    // surcharge for raw pixel input
     public static boolean isLumaDiff(byte[] pixel1, byte[] pixel2) {
         byte[] lumaDiff = calcLumaDiff(pixel1, pixel2);
-        // c moche, je vais le faire plus clean:
-        // reminder: add byte casts somewhere
-        // will let QoiOpLuma share this method somehow
-        //XXX Added a cleaner return !
-        return (
-                (lumaDiff[QOISpecification.r] > -9) &&
-                (lumaDiff[QOISpecification.r] < 8) &&
-                (lumaDiff[QOISpecification.g] > -33) &&
-                (lumaDiff[QOISpecification.g] < 32) &&
-                (lumaDiff[QOISpecification.b] > -9) &&
-                (lumaDiff[QOISpecification.b] < 8)
-        );
+
+        return isLumaDiff(lumaDiff);
     }
 
     // ==================================================================================
@@ -270,20 +273,20 @@ public final class QOIEncoder {
                     if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a] && isSmallRGBdiff(pixel, prevPixel)) {
                         encodedPixels.add(qoiOpDiff(calcRGBdiff(pixel, prevPixel)));
 
-                        // ---QOI_OP_LUMA---
                     }
+                    // ---QOI_OP_LUMA---
                     else if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a] && isLumaDiff(pixel, prevPixel)) {
                         // old diff method, subject to change
                         encodedPixels.add(qoiOpLuma(calcRGBdiff(pixel, prevPixel)));
 
-                        // ---QOI_OP_RGB---
                     }
+                    // ---QOI_OP_RGB---
                     else if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a]) {
                         encodedPixels.add(qoiOpRGB(pixel));
 
-                        // ---QOI_OP_RGBA---
                     }
                     else {
+                        // ---QOI_OP_RGBA---
                         encodedPixels.add(qoiOpRGBA(pixel));
                     }
                 }
@@ -291,10 +294,8 @@ public final class QOIEncoder {
             prevPixel = pixel;
         }
 
-        //TODO manual array flattening, then concatenation. should be done cleaner
-        byte[][] encodedImage = new byte[encodedPixels.size()][];
-        for (int i = 0; i < encodedPixels.size(); i++)
-             encodedImage[i] = encodedPixels.get(i);
+        byte[][] encodedImage = encodedPixels.toArray(new byte[0][0]);
+
         return ArrayUtils.concat(encodedImage);
     }
 
