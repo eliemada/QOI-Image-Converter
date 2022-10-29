@@ -1,5 +1,8 @@
 package cs107;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+
 import static cs107.Helper.Image;
 
 /**
@@ -27,9 +30,28 @@ public final class QOIDecoder {
      * @throws AssertionError See handouts section 6.1
      */
     public static int[] decodeHeader(byte[] header){
-        return Helper.fail("Not Implemented");
-    }
+        assert !(header == null) : "Header is null";
+        assert (header.length == QOISpecification.HEADER_SIZE) :"The length of the header is not equal to "
+                                                                 + "the constant HEADER_SIZE" ;
+        assert !(ArrayUtils.equals(ArrayUtils.extract(header, 4, 4), QOISpecification.QOI_MAGIC))
+                :"The first four bytes are not equal to the constant HEADER_SIZE" ;
+        assert (header[header.length-2]==QOISpecification.RGB||
+                header[header.length-2]==QOISpecification.RGBA) : "The number of channels is not equal "
+                                                                  + "to RGB or RGBA";
+        assert (header[header.length-1]==QOISpecification.ALL||
+                header[header.length-1]==QOISpecification.sRGB) : "the color space is not equal "
+                                                                  + "to ALL or sRGB";
 
+
+
+        int[] output = new int[4];
+        output[0] = ArrayUtils.toInt(ArrayUtils.extract(header,4,4));
+        output[1] = ArrayUtils.toInt(ArrayUtils.extract(header,8,4));
+        output[2] = header[header.length-2];
+        output[3] = header[header.length-1];
+        return output;
+
+    }
     // ==================================================================================
     // =========================== ATOMIC DECODING METHODS ==============================
     // ==================================================================================
