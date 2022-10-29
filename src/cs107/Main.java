@@ -325,6 +325,10 @@ public final class Main {
         byte[] diff = {19, 27, 20};
         byte[] expected = {-69, 1};
         byte[] encoding = QOIEncoder.qoiOpLuma(diff);
+        // should throw AssertionError when uncommented:
+        // QOIEncoder.qoiOpLuma(null);
+        // QOIEncoder.qoiOpLuma(new byte[0]);
+        // QOIEncoder.qoiOpLuma(new byte[]{100, 27, 0});
         return Arrays.equals(expected, encoding);
     }
 
