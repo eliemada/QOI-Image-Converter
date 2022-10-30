@@ -311,6 +311,7 @@ public final class QOIEncoder {
      * TO CREATE THE FILE, YOU'LL NEED TO CALL Helper::write
      */
     public static byte[] qoiFile(Helper.Image image) {
+        assert image == null:"The image is null.";
         return ArrayUtils.concat(qoiHeader(image),encodeData(ArrayUtils.imageToChannels(image.data())),
                 QOISpecification.QOI_EOF);
     }

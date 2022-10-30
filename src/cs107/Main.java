@@ -57,6 +57,7 @@ public final class Main {
         // ========== Test QOIEncoder ==========
         assert testQoiHeader();
         assert testQoiOpRGB();
+        pngToQoi("references/cube.png","test.qoi");
         assert testQoiOpRGBA();
         assert testQoiOpIndex();
         assert testQoiOpDiff();
