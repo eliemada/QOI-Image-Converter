@@ -67,7 +67,18 @@ public final class QOIDecoder {
      * @throws AssertionError See handouts section 6.2.1
      */
     public static int decodeQoiOpRGB(byte[][] buffer, byte[] input, byte alpha, int position, int idx){
-        return Helper.fail("Not Implemented");
+        assert !(input == null && buffer ==null) : "The input and the buffer are null";
+        assert !(buffer == null) : "The buffer is null";
+        assert !(input == null) : "The input is null";
+        assert (position>0 && position < buffer.length) : "The variable position doesn't point towards a "
+                                                           + "valid location of buffer";
+        assert (idx+2 < input.length): "input does not contain enough data to recover the pixel";
+        byte[]   extracted = ArrayUtils.extract(input,idx,3);
+        byte[]   editedBuffer = new byte[4];
+        System.arraycopy(extracted, 0, editedBuffer, 0, extracted.length);
+        editedBuffer[3]=alpha;
+        buffer[position] = editedBuffer;
+        return 3;
     }
 
     /**
@@ -80,7 +91,16 @@ public final class QOIDecoder {
      * @throws AssertionError See handouts section 6.2.2
      */
     public static int decodeQoiOpRGBA(byte[][] buffer, byte[] input, int position, int idx){
-        return Helper.fail("Not Implemented");
+        assert !(input == null && buffer ==null) : "The input and the buffer are null";
+        assert !(buffer == null) : "The buffer is null";
+        assert !(input == null) : "The input is null";
+        assert (position>0 || position < buffer.length) : "The variable position doesn't point towards a "
+                                                             + "valid location of buffer";
+        assert (idx+3 < input.length): "input does not contain enough data to recover the pixel";
+
+        byte[] output = ArrayUtils.extract(input,idx,4);
+        buffer[position] = output;
+        return 4;
     }
 
     /**
@@ -91,9 +111,18 @@ public final class QOIDecoder {
      * @throws AssertionError See handouts section 6.2.4
      */
     public static byte[] decodeQoiOpDiff(byte[] previousPixel, byte chunk){
-        return Helper.fail("Not Implemented");
-    }
+        assert !(previousPixel == null): "The previous pixel is equal to null";
+        assert (previousPixel.length == 4): "The previous length is not equal to 4";
+        assert ((chunk & 0b11_00_00_00) == QOISpecification.QOI_OP_DIFF_TAG) : "The tag of chunk is not "
+                                                                               + "equal to QOI_OP_DIFF_TAG";
+        int dr, dg, db;
+        dr = ((chunk & 0b11_00_00) >>> 4) -2;
+        dg = ((chunk & 0b11_00 )>>> 2) -2;
+        db = (chunk & 0b11) -2;
 
+        return new byte[]{(byte) (previousPixel[0] + dr),(byte) (previousPixel[1] + dg),
+                (byte) (previousPixel[2] + db),(byte) (previousPixel[3])};
+    }
     /**
      * Create a new pixel following the "QOI_OP_LUMA" schema
      * @param previousPixel (byte[]) - The previous pixel
@@ -102,7 +131,18 @@ public final class QOIDecoder {
      * @throws AssertionError See handouts section 6.2.5
      */
     public static byte[] decodeQoiOpLuma(byte[] previousPixel, byte[] data){
-        return Helper.fail("Not Implemented");
+        assert !(previousPixel == null): "The previous pixel is equal to null";
+        assert (previousPixel.length == 4): "The previous length is not equal to 4";
+        assert (((byte) (data[0] & 0b11_00_00_00)) == QOISpecification.QOI_OP_LUMA_TAG) :
+                "The tag of chunk is not equal to QOI_OP_LUMA_TAG";
+
+        int dr, dg, db;
+        dg = ((data[0] &0b11_11_11)-32);
+        dr =  (((data[1]&0b11_11_11_11)>>>4)-8)+dg;
+        db =  ((data[1]&0b11_11))-8+dg;
+        return new byte[]{(byte) (previousPixel[0] + dr),(byte) (previousPixel[1] + dg),
+                (byte) (previousPixel[2] + db),(byte) (previousPixel[3])};
+
     }
 
     /**
@@ -115,7 +155,21 @@ public final class QOIDecoder {
      * @throws AssertionError See handouts section 6.2.6
      */
     public static int decodeQoiOpRun(byte[][] buffer, byte[] pixel, byte chunk, int position){
-        return Helper.fail("Not Implemented");
+        assert !(buffer==null&&pixel == null) : "The buffer and the pixel are null";
+        assert !(buffer==null) : "The buffer is null";
+        assert !(pixel==null) : "The pixel is null";
+        assert (position>0 && position < buffer.length) : "The variable position doesn't point towards a "
+                                                          + "valid location of buffer";
+        assert (pixel.length==4): "The pixel length is not equal to 4";
+
+        int count = (byte) ((chunk & 0b11_11_11) + 1);
+        assert (count+position<buffer.length):"The buffer does not contain enough space to recover the "
+                                              + "pixels";
+        for (int i =0; i<count;i++){
+            buffer[position] = pixel;
+            position++;
+        }
+        return count -1;
     }
 
     // ==================================================================================
