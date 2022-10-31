@@ -116,44 +116,21 @@ public final class ArrayUtils {
         assert bytes != null : "The array is null ";
         assert (bytes.length == 4) : "The array does not contain 4 elements";
 
-        int shifted = bytes[0] << 24;
-        int composit = shifted;
-        shifted = bytes[1] << 16;
-        int masked = shifted & 0x00FF0000;
-        composit = composit | masked;
-        shifted = bytes[2] << 8;
-        masked = shifted & 0x0000FF00;
-        composit = composit | masked;
-        masked = bytes[3] & 0x000000FF;
-        composit = composit | masked;
-
-
-        return composit;
-    }
-
-    public static int oldToInt(byte[] bytes) {
-
-        assert bytes != null : "The array is null ";
-        assert (bytes.length == 4) : "The array does not contain 4 elements";
-
-        int output = 0;
+        int[] masks = new int[]{0xFF000000, 0xFF0000, 0xFF00, 0xFF};
         int shift = 24;
+        int composite = 0;
 
-        for (byte aByte : bytes) {
-            if (shift > 0) {
-                int unsign = aByte << shift;
-                output += unsign;
-            } else {
-                int unsign = aByte & 0xFF;
-                output += unsign;
-            }
+        for (int i = 0; i < 4; i++) {
+
+            int shifted = bytes[i] << shift;
+            int masked = shifted & masks[i];
+            composite |= masked;
+
             shift -= 8;
         }
 
-        return output;
+        return composite;
     }
-
-
 
     /**
      * Separate the Integer (word) to 4 bytes. The Memory layout of this integer is "Big Endian"
@@ -166,7 +143,7 @@ public final class ArrayUtils {
         byte[] output = new byte[4];
         int shift = 24;
 
-        for (int i = 0; i < output.length; i++) {
+        for (int i = 0; i < 4; i++) {
             output[i] = (byte) (value >> shift);
             shift -= 8;
         }
