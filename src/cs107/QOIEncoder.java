@@ -239,6 +239,8 @@ public final class QOIEncoder {
      * @return (byte[]) - "Quite Ok Image" representation of the image
      */
     public static byte[] encodeData(byte[][] image) {
+
+
         // Initialization
         byte[]            prevPixel     = QOISpecification.START_PIXEL;
         byte[][]          hashTable     = new byte[64][4];
@@ -246,13 +248,13 @@ public final class QOIEncoder {
         ArrayList<byte[]> encodedPixels = new ArrayList<>();
 
         // Pixel Processing
-        for (byte[] pixel : image) {
+        for (int i = 0; i < image.length; i++) {
 
             // ---QOI_OP_RUN---
-            if (ArrayUtils.equals(pixel, prevPixel)) {
+            if (ArrayUtils.equals(image[i], prevPixel)) {
                 runCounter++;
                 // might benefit from normal for-loop with index
-                if (runCounter == 62 || ArrayUtils.equals(pixel, image[image.length - 1])) {
+                if (runCounter == 62 || i == (image.length - 1)) {
                     encodedPixels.add(qoiOpRun((byte) runCounter));
                     runCounter = 0;
                 }
@@ -264,36 +266,36 @@ public final class QOIEncoder {
                 }
 
                 // ---QOI_OP_INDEX---
-                if (ArrayUtils.equals(pixel, hashTable[QOISpecification.hash(pixel)])) {
-                    encodedPixels.add(qoiOpIndex(QOISpecification.hash(pixel)));
+                if (ArrayUtils.equals(image[i], hashTable[QOISpecification.hash(image[i])])) {
+                    encodedPixels.add(qoiOpIndex(QOISpecification.hash(image[i])));
                 }
                 else {
-                    hashTable[QOISpecification.hash(pixel)] = pixel;
+                    hashTable[QOISpecification.hash(image[i])] = image[i];
 
                     // ---QOI_OP_DIFF---
                     // improve performance by not doubly computing the diff in positive cases?
-                    if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a] && isValidRGBdiff(pixel, prevPixel)) {
-                        encodedPixels.add(qoiOpDiff(calcRGBdiff(pixel, prevPixel)));
+                    if (image[i][QOISpecification.a] == prevPixel[QOISpecification.a] && isValidRGBdiff(image[i], prevPixel)) {
+                        encodedPixels.add(qoiOpDiff(calcRGBdiff(image[i], prevPixel)));
                     }
 
                     // ---QOI_OP_LUMA---
-                    else if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a] && isValidLumaDiff(pixel, prevPixel)) {
+                    else if (image[i][QOISpecification.a] == prevPixel[QOISpecification.a] && isValidLumaDiff(image[i], prevPixel)) {
                         // old diff method, subject to change
-                        encodedPixels.add(qoiOpLuma(calcRGBdiff(pixel, prevPixel)));
+                        encodedPixels.add(qoiOpLuma(calcRGBdiff(image[i], prevPixel)));
                     }
 
                     // ---QOI_OP_RGB---
-                    else if (pixel[QOISpecification.a] == prevPixel[QOISpecification.a]) {
-                        encodedPixels.add(qoiOpRGB(pixel));
+                    else if (image[i][QOISpecification.a] == prevPixel[QOISpecification.a]) {
+                        encodedPixels.add(qoiOpRGB(image[i]));
                     }
 
                     else {
                         // ---QOI_OP_RGBA---
-                        encodedPixels.add(qoiOpRGBA(pixel));
+                        encodedPixels.add(qoiOpRGBA(image[i]));
                     }
                 }
             }
-            prevPixel = pixel;
+            prevPixel = image[i];
         }
 
         byte[][] encodedImage = encodedPixels.toArray(new byte[0][0]);
