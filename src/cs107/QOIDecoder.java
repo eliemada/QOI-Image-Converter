@@ -1,8 +1,5 @@
 package cs107;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
-
 import static cs107.Helper.Image;
 
 /**
@@ -30,7 +27,7 @@ public final class QOIDecoder {
      * @throws AssertionError See handouts section 6.1
      */
     public static int[] decodeHeader(byte[] header){
-        assert !(header == null) : "Header is null";
+        assert header != null : "Header is null";
         assert (header.length == QOISpecification.HEADER_SIZE) :"The length of the header is not equal to "
                                                                  + "the constant HEADER_SIZE" ;
         assert !(ArrayUtils.equals(ArrayUtils.extract(header, 4, 4), QOISpecification.QOI_MAGIC))
@@ -70,8 +67,8 @@ public final class QOIDecoder {
         assert !(input == null && buffer ==null) : "The input and the buffer are null";
         assert !(buffer == null) : "The buffer is null";
         assert !(input == null) : "The input is null";
-        assert (position>0 && position < buffer.length) : "The variable position doesn't point towards a "
-                                                           + "valid location of buffer";
+        assert (position >= 0 && position < buffer.length) :
+                "The variable position doesn't point towards a valid location of buffer";
         assert (idx+2 < input.length): "input does not contain enough data to recover the pixel";
         byte[]   extracted = ArrayUtils.extract(input,idx,3);
         byte[]   editedBuffer = new byte[4];
@@ -158,14 +155,14 @@ public final class QOIDecoder {
         assert !(buffer==null&&pixel == null) : "The buffer and the pixel are null";
         assert !(buffer==null) : "The buffer is null";
         assert !(pixel==null) : "The pixel is null";
-        assert (position>0 && position < buffer.length) : "The variable position doesn't point towards a "
-                                                          + "valid location of buffer";
+        assert (position >= 0 && position < buffer.length) :
+                "The variable position doesn't point towards a valid location of buffer";
         assert (pixel.length==4): "The pixel length is not equal to 4";
 
         int count = (byte) ((chunk & 0b11_11_11) + 1);
-        assert (count+position<buffer.length):"The buffer does not contain enough space to recover the "
-                                              + "pixels";
-        for (int i =0; i<count;i++){
+        assert (count + position <= buffer.length):
+                "The buffer does not contain enough space to recover the pixels";
+        for (int i = 0; i < count; i++){
             buffer[position] = pixel;
             position++;
         }
@@ -184,8 +181,74 @@ public final class QOIDecoder {
      * @return (byte[][]) - Decoded "Quite Ok Image"
      * @throws AssertionError See handouts section 6.3
      */
-    public static byte[][] decodeData(byte[] data, int width, int height){
-        return Helper.fail("Not Implemented");
+    public static byte[][] decodeData(byte[] data, int width, int height) {
+        // Initialization
+        byte[] prevPixel = QOISpecification.START_PIXEL;
+        byte[][] hashTable = new byte[64][4];
+        byte[][] buffer = new byte[width * height][4];
+        int idx = 0;
+        int position = 0;
+
+        // which asserts are needed here?
+        assert data != null : "The data is null";
+        assert (width > 0) : "The width is not positive";
+        assert (height > 0) : "The height is not positive";
+
+        // Data decoding
+        while (position < buffer.length) {
+
+            byte chunk = data[idx];
+            // Whole-byte tags
+
+            // ---QOI_OP_RGB---
+            if (chunk == QOISpecification.QOI_OP_RGB_TAG) {
+                decodeQoiOpRGB(buffer, data, prevPixel[3], position, idx+1);
+                idx += 4;
+            }
+
+            // ---QOI_OP_RGBA---
+            else if (chunk == QOISpecification.QOI_OP_RGBA_TAG) {
+                decodeQoiOpRGBA(buffer, data, position, idx+1);
+
+                idx += 5;
+            } else {
+                // Two-bit tags
+                byte twoBitTag = (byte) (chunk & 0b11_00_00_00);
+
+                // ---QOI_OP_INDEX---
+                if (twoBitTag == QOISpecification.QOI_OP_INDEX_TAG) {
+                    buffer[position] = hashTable[(byte) (chunk & 0b00_11_11_11)];
+
+                    idx++;
+                }
+
+                // ---QOI_OP_DIFF---
+                else if (twoBitTag == QOISpecification.QOI_OP_DIFF_TAG) {
+                    buffer[position] = decodeQoiOpDiff(prevPixel, chunk);
+                    idx++;
+                }
+
+                // ---QOI_OP_LUMA---
+                else if (twoBitTag == QOISpecification.QOI_OP_LUMA_TAG) {
+                    buffer[position] = decodeQoiOpLuma(prevPixel, ArrayUtils.extract(data, idx, 2));
+
+                    idx += 2;
+                }
+
+                // ---QOI_OP_RUN---
+                else if (twoBitTag == QOISpecification.QOI_OP_RUN_TAG) {
+                    position += decodeQoiOpRun(buffer, prevPixel, chunk, position);
+                    idx++;
+                } else assert false : "The universe is invalid";
+            }
+
+            prevPixel = buffer[position];
+            hashTable[QOISpecification.hash(buffer[position])] = buffer[position];
+            position++;
+        }
+
+
+        return buffer;
     }
 
     /**
@@ -195,7 +258,24 @@ public final class QOIDecoder {
      * @throws AssertionError if content is null
      */
     public static Image decodeQoiFile(byte[] content){
-        return Helper.fail("Not Implemented");
+
+        assert content != null : "The content is null";
+
+        // int[] test = decodeHeader(ArrayUtils.extract(content, 0, QOISpecification.HEADER_SIZE));
+        // byte[] comp = new byte[]{0, 0, 0, 0, 0, 0, 0, 1};
+
+        assert ArrayUtils.equals(ArrayUtils.extract(content, content.length-8, 8),QOISpecification.QOI_EOF) : "The magic number is not valid";
+
+        int[] header = decodeHeader(ArrayUtils.extract(content, 0, QOISpecification.HEADER_SIZE));
+
+        byte[] blockStream = ArrayUtils.extract(content, QOISpecification.HEADER_SIZE, content.length-QOISpecification.HEADER_SIZE-QOISpecification.QOI_EOF.length);
+        // unsigned?
+        int width = header[0];
+        int height = header[1];
+        byte channels =(byte) header[2];
+        byte colorSpace = (byte) header[3];
+
+        return Helper.generateImage(ArrayUtils.channelsToImage(decodeData(blockStream, width, height), height, width), channels, colorSpace);
     }
 
 }
