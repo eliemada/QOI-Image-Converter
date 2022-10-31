@@ -51,13 +51,10 @@ public final class Main {
         assert testImageToChannels();
         assert testChannelsToImage();
         assert testPartition();
-        assert testImageToChannels();
-        assert testChannelsToImage();
 
         // ========== Test QOIEncoder ==========
         assert testQoiHeader();
         assert testQoiOpRGB();
-        pngToQoi("references/cube.png","test.qoi");
         assert testQoiOpRGBA();
         assert testQoiOpIndex();
         assert testQoiOpDiff();
@@ -69,10 +66,16 @@ public final class Main {
         assert testDecodeHeader();
         assert testDecodeQoiOpRGB();
         assert testDecodeQoiOpRGBA();
-        //assert testDecodeQoiOpDiff();
-        //assert testDecodeQoiOpLuma();
-        //assert testDecodeQoiOpRun();
-        //assert testDecodeData();
+        assert testDecodeQoiOpDiff();
+        assert testDecodeQoiOpLuma();
+        assert testDecodeQoiOpRun();
+        assert testDecodeData();
+
+        qoiToPng("references/beach.qoi", "dectest.png");
+        qoiToPng("references/qoi_op_run.qoi", "dectest.png");
+        qoiToPng("references/dice.qoi", "dectest.png");
+        qoiToPng("references/cube.qoi", "dectest.png");
+        // pngToQoi("res/biggie.png", "biggie.qoi");
 
         System.out.println("All the tests passed. Congratulations");
     }
@@ -177,9 +180,10 @@ public final class Main {
 
     @SuppressWarnings("unused")
     private static boolean testToInt(){
-        byte[] array = {123, 8, 4, 7};
+        // byte[] array = {123, 8, 4, 7};
+        byte[] array = {-1, 0, 0, -77};
         int value = ArrayUtils.toInt(array);
-        int expected = 2064122887;
+        int expected = 0xFF0000B3;
         return value == expected;
     }
 
@@ -334,16 +338,16 @@ public final class Main {
 
     @SuppressWarnings("unused")
     private static boolean testQoiOpRun(){
-        byte count = 41;
-        byte[] expected = {-24};
+        byte count = 62;
+        byte[] expected = {-3};
         byte[] encoding = QOIEncoder.qoiOpRun(count);
         return Arrays.equals(expected, encoding);
     }
 
     @SuppressWarnings("unused")
     private static boolean testEncodeData(){
-        byte[][]  pixels = { {0,0,0,-1}, {0,0,0,-1}, {0,0,0,-1}, {0,-1,0,-1},{-18,-20,-18,-1},{0,0,0,-1}, {100,100,100,-1}, {90,90,90,90}};
-        byte[] expected = {-62, 102, -115, -103, -76, 102, -2, 100, 100, 100, -1, 90, 90, 90, 90};
+        byte[][]  pixels = { {0,0,0,-1}, {0,0,0,-1}, {0,0,0,-1}, {0,-1,0,-1},{-18,-20,-18,-1},{0,0,0,-1}, {100,100,100,-1}, {90,90,90,90}, {0,0,0,-1}, {0,0,0,-1}, {0,0,0,-1}};
+        byte[] expected = {-62, 102, -115, -103, -76, 102, -2, 100, 100, 100, -1, 90, 90, 90, 90, 53, -63};
         byte[] encoding = QOIEncoder.encodeData(pixels);
         return Arrays.equals(expected, encoding);
     }
