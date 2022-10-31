@@ -116,6 +116,26 @@ public final class ArrayUtils {
         assert bytes != null : "The array is null ";
         assert (bytes.length == 4) : "The array does not contain 4 elements";
 
+        int shifted = bytes[0] << 24;
+        int composit = shifted;
+        shifted = bytes[1] << 16;
+        int masked = shifted & 0x00FF0000;
+        composit = composit | masked;
+        shifted = bytes[2] << 8;
+        masked = shifted & 0x0000FF00;
+        composit = composit | masked;
+        masked = bytes[3] & 0x000000FF;
+        composit = composit | masked;
+
+
+        return composit;
+    }
+
+    public static int oldToInt(byte[] bytes) {
+
+        assert bytes != null : "The array is null ";
+        assert (bytes.length == 4) : "The array does not contain 4 elements";
+
         int output = 0;
         int shift = 24;
 
