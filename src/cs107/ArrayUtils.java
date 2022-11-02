@@ -112,17 +112,27 @@ public final class ArrayUtils {
      * @throws AssertionError if the input is null or the input's length is different from 4
      */
     public static int toInt(byte[] bytes) {
+
         assert bytes != null : "The array is null ";
-        assert (bytes.length == 4 ) : "The array does not contain 4 elements";
-        int output  = 0;
+        assert (bytes.length == 4) : "The array does not contain 4 elements";
+
+        int output = 0;
         int shift = 24;
+
         for (byte aByte : bytes) {
-            output += aByte << shift;
+            if (shift > 0) {
+                int unsign = aByte << shift;
+                output += unsign;
+            } else {
+                int unsign = aByte & 0xFF;
+                output += unsign;
+            }
             shift -= 8;
         }
 
         return output;
     }
+
 
 
     /**

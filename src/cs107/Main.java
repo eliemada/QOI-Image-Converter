@@ -71,11 +71,7 @@ public final class Main {
         assert testDecodeQoiOpRun();
         assert testDecodeData();
 
-        qoiToPng("references/beach.qoi", "dectest.png");
-        qoiToPng("references/qoi_op_run.qoi", "dectest.png");
-        qoiToPng("references/dice.qoi", "dectest.png");
-        qoiToPng("references/cube.qoi", "dectest.png");
-        // pngToQoi("res/biggie.png", "biggie.qoi");
+        pngToQoi("references/beach.png", "enctest.qoi");
 
         System.out.println("All the tests passed. Congratulations");
     }

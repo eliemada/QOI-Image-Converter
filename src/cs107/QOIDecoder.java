@@ -215,31 +215,27 @@ public final class QOIDecoder {
                 // Two-bit tags
                 byte twoBitTag = (byte) (chunk & 0b11_00_00_00);
 
-                // ---QOI_OP_INDEX---
-                if (twoBitTag == QOISpecification.QOI_OP_INDEX_TAG) {
-                    buffer[position] = hashTable[(byte) (chunk & 0b00_11_11_11)];
+                switch (twoBitTag){
+                    case QOISpecification.QOI_OP_INDEX_TAG:
+                        buffer[position] = hashTable[(byte) (chunk & 0b00_11_11_11)];
+                        idx++;
+                        break;
+                    case QOISpecification.QOI_OP_DIFF_TAG:
+                        buffer[position] = decodeQoiOpDiff(prevPixel, chunk);
+                        idx++;
+                        break;
+                    case QOISpecification.QOI_OP_LUMA_TAG:
+                        buffer[position] = decodeQoiOpLuma(prevPixel, ArrayUtils.extract(data, idx, 2));
+                        idx += 2;
+                        break;
+                    case  QOISpecification.QOI_OP_RUN_TAG:
+                        position += decodeQoiOpRun(buffer, prevPixel, chunk, position);
+                        idx++;
+                        break;
+                    default:
+                        assert false : "The universe is invalid";
 
-                    idx++;
                 }
-
-                // ---QOI_OP_DIFF---
-                else if (twoBitTag == QOISpecification.QOI_OP_DIFF_TAG) {
-                    buffer[position] = decodeQoiOpDiff(prevPixel, chunk);
-                    idx++;
-                }
-
-                // ---QOI_OP_LUMA---
-                else if (twoBitTag == QOISpecification.QOI_OP_LUMA_TAG) {
-                    buffer[position] = decodeQoiOpLuma(prevPixel, ArrayUtils.extract(data, idx, 2));
-
-                    idx += 2;
-                }
-
-                // ---QOI_OP_RUN---
-                else if (twoBitTag == QOISpecification.QOI_OP_RUN_TAG) {
-                    position += decodeQoiOpRun(buffer, prevPixel, chunk, position);
-                    idx++;
-                } else assert false : "The universe is invalid";
             }
 
             prevPixel = buffer[position];
