@@ -74,7 +74,7 @@ public final class Main {
 
         // ========== Reference files conversions ==========
 //        qoiToPng("references/beach.qoi", "beach.png");
-        qoiToPng("references/cube.qoi", "cube.png");
+//        qoiToPng("references/cube.qoi", "cube.png");
 //        qoiToPng("references/dice.qoi", "dice.png");
 //        qoiToPng("references/EPFL.qoi", "EPFL.png");
 //        qoiToPng("references/qoi_encode_test.qoi", "qoi_encode_test.png");
@@ -88,7 +88,7 @@ public final class Main {
 
 //        pngToQoi("references/beach.png", "beach.qoi");
 //        pngToQoi("references/cube.png", "cube.qoi");
-        pngToQoi("references/dice.png", "dice.qoi");
+//        pngToQoi("references/dice.png", "dice.qoi");
 //        pngToQoi("references/EPFL.png", "EPFL.qoi");
 //        pngToQoi("references/qoi_encode_test.png", "qoi_encode_test.qoi");
 //        pngToQoi("references/random.png", "random.qoi");

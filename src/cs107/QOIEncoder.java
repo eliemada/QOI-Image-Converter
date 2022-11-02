@@ -257,6 +257,11 @@ public final class QOIEncoder {
         int               runCounter    = 0;
         ArrayList<byte[]> encodedPixels = new ArrayList<>();
 
+        // Statistics:
+        // Indexes: 0-QOI_OP_RUN,   1-QIO_OP_INDEX, 2-QOI_OP_DIFF,
+        //          3-QOI_OP_LUMA,  4-QOI_OP_RGB,   5-QOI_OP_RGBA)
+        int [] stats = new int[6];
+
         // Pixel Processing
         for (int i = 0; i < image.length; i++) {
 
@@ -266,18 +271,21 @@ public final class QOIEncoder {
 
                 if (runCounter == 62 || i == (image.length - 1)) {
                     encodedPixels.add(qoiOpRun((byte) runCounter));
+                    stats[0] += runCounter;
                     runCounter = 0;
                 }
             }
             else {
                 if (runCounter > 0) {
                     encodedPixels.add(qoiOpRun((byte) runCounter));
+                    stats[0] += runCounter;
                     runCounter = 0;
                 }
 
                 // ---QOI_OP_INDEX---
                 if (ArrayUtils.equals(image[i], hashTable[QOISpecification.hash(image[i])])) {
                     encodedPixels.add(qoiOpIndex(QOISpecification.hash(image[i])));
+                    stats[1]++;
                 }
                 else {
                     hashTable[QOISpecification.hash(image[i])] = image[i];
@@ -286,25 +294,44 @@ public final class QOIEncoder {
                         byte[] pixelDiff = calcRGBdiff(image[i], prevPixel);
 
                         // ---QOI_OP_DIFF---
-                        if(isValidRGBdiff(pixelDiff))
+                        if(isValidRGBdiff(pixelDiff)) {
                             encodedPixels.add(qoiOpDiff(pixelDiff));
+                            stats[2]++;
+                        }
 
                         // ---QOI_OP_LUMA---
-                        else if (isValidLumaDiff(calcLumaDiff(pixelDiff)))
+                        else if (isValidLumaDiff(calcLumaDiff(pixelDiff))) {
                             encodedPixels.add(qoiOpLuma(pixelDiff));
+                            stats[3]++;
+                        }
 
                         // ---QOI_OP_RGB---
-                        else
+                        else {
                             encodedPixels.add(qoiOpRGB(image[i]));
+                            stats[4]++;
+                        }
 
                         // ---QOI_OP_RGBA---
-                    } else
+                    } else {
                         encodedPixels.add(qoiOpRGBA(image[i]));
+                        stats[5]++;
+                    }
 
                 }
             }
             prevPixel = image[i];
         }
+
+        // Statistics
+        System.out.println("====== Encoding Statistics ======");
+        System.out.println("    Method    |   Pixels encoded");
+        System.out.println("QOI_OP_RUN    |   " + stats[0] );
+        System.out.println("QOI_OP_INDEX  |   " + stats[1] );
+        System.out.println("QOI_OP_DIFF   |   " + stats[2] );
+        System.out.println("QOI_OP_LUMA   |   " + stats[3] );
+        System.out.println("QOI_OP_RGB    |   " + stats[4] );
+        System.out.println("QOI_OP_RGBA   |   " + stats[5] );
+        System.out.println("=================================");
 
         // flatten the 2D array to 1D
         return ArrayUtils.concat(encodedPixels.toArray(new byte[0][0]));
