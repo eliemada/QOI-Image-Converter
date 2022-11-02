@@ -71,11 +71,33 @@ public final class Main {
         assert testDecodeQoiOpRun();
         assert testDecodeData();
 
-        //qoiToPng("references/qoi_op_diff.qoi", "dectest.png");
-        //qoiToPng("references/qoi_op_run.qoi", "dectest.png");
-        qoiToPng("references/dice.qoi", "dectest.png");
-        //qoiToPng("references/cube.qoi", "dectest.png");
-        pngToQoi("references/cube.png", "enctest.qoi");
+
+        // ========== Reference files conversions ==========
+//        qoiToPng("references/beach.qoi", "beach.png");
+        qoiToPng("references/cube.qoi", "cube.png");
+//        qoiToPng("references/dice.qoi", "dice.png");
+//        qoiToPng("references/EPFL.qoi", "EPFL.png");
+//        qoiToPng("references/qoi_encode_test.qoi", "qoi_encode_test.png");
+//        qoiToPng("references/random.qoi", "random.png");
+//        qoiToPng("references/qoi_op_diff.qoi", "qoi_op_diff.png");
+//        qoiToPng("references/qoi_op_run.qoi", "qoi_op_run.png");
+//        qoiToPng("references/qoi_op_rgb.qoi", "qoi_op_rgb.png");
+//        qoiToPng("references/qoi_op_rgba.qoi", "qoi_op_rgba.png");
+//        qoiToPng("references/qoi_op_index.qoi", "qoi_op_index.png");
+//        qoiToPng("references/qoi_op_luma.qoi", "qoi_op_luma.png");
+
+//        pngToQoi("references/beach.png", "beach.qoi");
+//        pngToQoi("references/cube.png", "cube.qoi");
+        pngToQoi("references/dice.png", "dice.qoi");
+//        pngToQoi("references/EPFL.png", "EPFL.qoi");
+//        pngToQoi("references/qoi_encode_test.png", "qoi_encode_test.qoi");
+//        pngToQoi("references/random.png", "random.qoi");
+//        pngToQoi("references/qoi_op_diff.png", "qoi_op_diff.qoi");
+//        pngToQoi("references/qoi_op_run.png", "qoi_op_run.qoi");
+//        pngToQoi("references/qoi_op_rgb.png", "qoi_op_rgb.qoi");
+//        pngToQoi("references/qoi_op_rgba.png", "qoi_op_rgba.qoi");
+//        pngToQoi("references/qoi_op_index.png", "qoi_op_index.qoi");
+//        pngToQoi("references/qoi_op_luma.png", "qoi_op_luma.qoi");
 
         System.out.println("All the tests passed. Congratulations");
     }

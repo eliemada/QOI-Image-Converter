@@ -134,7 +134,7 @@ public final class QOIEncoder {
         final byte DRDB_OFFSET = 8;
 
         byte[] binEncodedOutput = new byte[]{QOISpecification.QOI_OP_LUMA_TAG, 0};
-        byte[] lumaDiff = calcLumaDiff(diff);
+        byte[] lumaDiff         = calcLumaDiff(diff);
 
         assert isValidLumaDiff(lumaDiff) : "The RGB difference is out of this block's accepted range.";
 
@@ -184,15 +184,8 @@ public final class QOIEncoder {
                 (byte) (pixelDiff[QOISpecification.b] - pixelDiff[QOISpecification.g])};
     }
 
-    // surcharge for raw pixel input
-    public static byte[] calcLumaDiff(byte[] pixel1, byte[] pixel2) {
-        byte[] pixelDiff = calcRGBdiff(pixel1, pixel2);
-        return calcLumaDiff(pixelDiff);
-    }
-
-    // checks the QoiOpDiff block constraints on raw pixel input
-    public static boolean isValidRGBdiff(byte[] pixel1, byte[] pixel2) {
-        byte[] pixelDiff = calcRGBdiff(pixel1, pixel2);
+    // checks the QoiOpDiff block constraints on diff input
+    public static boolean isValidRGBdiff(byte[] pixelDiff) {
         for (byte diff : pixelDiff)
             if (diff < -2 || diff > 1) {
                 return false;
@@ -203,6 +196,7 @@ public final class QOIEncoder {
     // checks the QoiOpLuma block constraints on pixel diff array input
     // the R G B indexes are the same as in the QOI spec, maybe remove the index constants?
     public static boolean isValidLumaDiff(byte[] lumaDiff) {
+
         final byte DRi         = 0;
         final byte DGi         = 1;
         final byte DBi         = 2;
@@ -218,13 +212,6 @@ public final class QOIEncoder {
                 lumaDiff[DGi] > LOWER_DG && lumaDiff[DGi] < UPPER_DG &&
                 lumaDiff[DBi] > LOWER_DRDB && lumaDiff[DBi] < UPPER_DRDB
         );
-    }
-
-    // surcharge for raw pixel input
-    public static boolean isValidLumaDiff(byte[] pixel1, byte[] pixel2) {
-        byte[] lumaDiff = calcLumaDiff(pixel1, pixel2);
-
-        return isValidLumaDiff(lumaDiff);
     }
 
     // ==================================================================================
@@ -253,7 +240,7 @@ public final class QOIEncoder {
             // ---QOI_OP_RUN---
             if (ArrayUtils.equals(image[i], prevPixel)) {
                 runCounter++;
-                // might benefit from normal for-loop with index
+
                 if (runCounter == 62 || i == (image.length - 1)) {
                     encodedPixels.add(qoiOpRun((byte) runCounter));
                     runCounter = 0;
@@ -272,35 +259,32 @@ public final class QOIEncoder {
                 else {
                     hashTable[QOISpecification.hash(image[i])] = image[i];
 
-                    // ---QOI_OP_DIFF---
-                    // improve performance by not doubly computing the diff in positive cases?
-                    if (image[i][QOISpecification.a] == prevPixel[QOISpecification.a] && isValidRGBdiff(image[i], prevPixel)) {
-                        encodedPixels.add(qoiOpDiff(calcRGBdiff(image[i], prevPixel)));
-                    }
+                    if (image[i][QOISpecification.a] == prevPixel[QOISpecification.a]) {
+                        byte[] pixelDiff = calcRGBdiff(image[i], prevPixel);
 
-                    // ---QOI_OP_LUMA---
-                    else if (image[i][QOISpecification.a] == prevPixel[QOISpecification.a] && isValidLumaDiff(image[i], prevPixel)) {
-                        // old diff method, subject to change
-                        encodedPixels.add(qoiOpLuma(calcRGBdiff(image[i], prevPixel)));
-                    }
+                        // ---QOI_OP_DIFF---
+                        if(isValidRGBdiff(pixelDiff))
+                            encodedPixels.add(qoiOpDiff(pixelDiff));
 
-                    // ---QOI_OP_RGB---
-                    else if (image[i][QOISpecification.a] == prevPixel[QOISpecification.a]) {
-                        encodedPixels.add(qoiOpRGB(image[i]));
-                    }
+                        // ---QOI_OP_LUMA---
+                        else if (isValidLumaDiff(calcLumaDiff(pixelDiff)))
+                            encodedPixels.add(qoiOpLuma(pixelDiff));
 
-                    else {
+                        // ---QOI_OP_RGB---
+                        else
+                            encodedPixels.add(qoiOpRGB(image[i]));
+
                         // ---QOI_OP_RGBA---
+                    } else
                         encodedPixels.add(qoiOpRGBA(image[i]));
-                    }
+
                 }
             }
             prevPixel = image[i];
         }
 
-        byte[][] encodedImage = encodedPixels.toArray(new byte[0][0]);
-
-        return ArrayUtils.concat(encodedImage);
+        // flatten the 2D array to 1D
+        return ArrayUtils.concat(encodedPixels.toArray(new byte[0][0]));
     }
 
     /**
@@ -313,7 +297,7 @@ public final class QOIEncoder {
      * TO CREATE THE FILE, YOU'LL NEED TO CALL Helper::write
      */
     public static byte[] qoiFile(Helper.Image image) {
-        assert image == null:"The image is null.";
+        assert image != null:"The image is null.";
         return ArrayUtils.concat(qoiHeader(image),encodeData(ArrayUtils.imageToChannels(image.data())),
                 QOISpecification.QOI_EOF);
     }
