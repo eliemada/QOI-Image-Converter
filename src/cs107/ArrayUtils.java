@@ -23,10 +23,12 @@ public final class ArrayUtils {
 
     /**
      * Check if the content of both arrays is the same
+     * @author Sebastian Kugler (362022)
      * @param a1 (byte[]) - First array
      * @param a2 (byte[]) - Second array
-     * @return (boolean) - true if both arrays have the same content (or both null), false otherwise
-     * @throws AssertionError if one of the parameters is null
+     * @return (boolean) - True if both arrays have the same content
+     *                      (or both are null), false otherwise
+     * @throws AssertionError If one of the parameters is null
      */
     public static boolean equals (byte[] a1, byte[] a2) {
 
@@ -49,7 +51,7 @@ public final class ArrayUtils {
      * @param a2 (byte[][]) - Second array
      * @return (boolean) - true if both arrays have the same content (or both null), false otherwise
      * @throws AssertionError if one of the parameters is null
-     * @author Elie BRUNO (elie.bruno@epfl.ch )
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      *
      * <ul>
      *     <li>
@@ -94,9 +96,7 @@ public final class ArrayUtils {
      * @return (byte[]) - array with one element (value)
      */
     public static byte[] wrap(byte value){
-        byte[] wrappedArray = new byte[1];
-        wrappedArray[0] = value;
-        return wrappedArray;
+        return new byte[]{value};
     }
 
     // ==================================================================================
@@ -107,6 +107,8 @@ public final class ArrayUtils {
      * Create an Integer using the given array. The input needs to be considered
      * as "Big Endian"
      * (See handout for the definition of "Big Endian")
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
+     * @author Sebastian Kugler (362022)
      * @param bytes (byte[]) - Array of 4 bytes
      * @return (int) - Integer representation of the array
      * @throws AssertionError if the input is null or the input's length is different from 4
@@ -135,11 +137,12 @@ public final class ArrayUtils {
     /**
      * Separate the Integer (word) to 4 bytes. The Memory layout of this integer is "Big Endian"
      * (See handout for the definition of "Big Endian")
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
+     * @author Sebastian Kugler (362022)
      * @param value (int) - The integer
      * @return (byte[]) - Big Endian representation of the integer
      */
     public static byte[] fromInt(int value){
-        // add asserts?
         byte[] output = new byte[4];
         int shift = 24;
 
@@ -157,26 +160,28 @@ public final class ArrayUtils {
 
     /**
      * Concatenate a given sequence of bytes and stores them in an array
+     * @author Sebastian Kugler (362022)
      * @param bytes (byte ...) - Sequence of bytes to store in the array
      * @return (byte[]) - Array representation of the sequence
      * @throws AssertionError if the input is null
      */
     public static byte[] concat(byte ... bytes){
-        assert !(bytes == null ) : "The input is null";
+        assert bytes != null : "The input is null";
         return bytes;
     }
 
     /**
      * Concatenate a given sequence of arrays into one array
+     * @author Sebastian Kugler (362022)
      * @param tabs (byte[] ...) - Sequence of arrays
      * @return (byte[]) - Array representation of the sequence
      * @throws AssertionError if the input is null
      * or one of the inner arrays of input is null.
      */
     public static byte[] concat(byte[] ... tabs){
-        assert !(tabs == null ) : "The input is null";
+        assert tabs != null : "The input is null";
         for (byte[] b : tabs) {
-            assert !(b == null) : "An input is null";
+            assert b != null : "An array from the input is null";
         }
 
         ArrayList<Byte> outputList = new ArrayList<>();
@@ -196,6 +201,7 @@ public final class ArrayUtils {
 
     /**
      * Extract an array from another array
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      * @param input (byte[]) - Array to extract from
      * @param start (int) - Index in the input array to start the extract from
      * @param length (int) - The number of bytes to extract
@@ -203,15 +209,16 @@ public final class ArrayUtils {
      * @throws AssertionError if the input is null or start and length are invalid.
      * start + length should also be smaller than the input's length
      */
-    @SuppressWarnings("unused")
     public static byte[] extract (byte[] input, int start, int length){
 
         assert input != null : "The input array is null";
-        assert (0 <= start && start < input.length && length >= 0 && start + length <= input.length) : "The given positions are invalid";
+        assert (0 <= start && start < input.length &&
+                length >= 0 && start + length <= input.length) :
+                "The given positions are invalid";
 
         byte[] output = new byte[length];
 
-        for (int i = 0; i < length; i++) output[i] = input[start + i];
+        System.arraycopy(input, start, output, 0, length);
 
         return output;
     }
@@ -227,7 +234,6 @@ public final class ArrayUtils {
      * @throws AssertionError if one of the parameters is null
      * or the sum of the elements in sizes is different from the input's length
      */
-    @SuppressWarnings("unused")
     public static byte[][] partition(byte[] input, int ... sizes) {
         assert input != null: "Tab is null";
         assert sizes != null: "Sizes is null";
@@ -255,27 +261,22 @@ public final class ArrayUtils {
     /**
      * These functions have been created for the modularity of the code.
      * They are used to convert one pixel from an ARGB integer representation to an RGBA byte array and back.
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      * @param input The pixel in ARGB integer representation
      * @return The pixel in RGBA byte array representation
-     *
-     * @author Elie BRUNO (elie.bruno@epfl.ch)
-     *
      */
-    public static byte[] rgbaFromInt(int input){
+    private static byte[] rgbaFromInt(int input){
         byte[] inputAsByte = fromInt(input);
         return new byte[]{inputAsByte[1], inputAsByte[2], inputAsByte[3], inputAsByte[0]};
     }
 
     /**
      * This is a reverse function of the above and converts a pixel from RGBA byte array to ARGB integer representation.
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      * @param input The pixel in RGBA byte array representation
      * @return The pixel in ARGB integer representation
-     *
-     * @author Elie BRUNO (elie.bruno@epfl.ch)
-     *
      */
-
-    public static int rgbaToInt(byte[] input){
+    private static int rgbaToInt(byte[] input){
         byte[] permuted = {input[3], input[0], input[1], input[2]};
         return toInt(permuted);
     }
@@ -324,6 +325,7 @@ public final class ArrayUtils {
      * Format a 2-dim byte array where the first dimension is the pixel
      * and the second is the channel to a 2-dim int array where the first
      * dimension is the height and the second is the width
+     * @author Sebastian Kugler (362022)
      * @param input (byte[][]) : linear representation of the image
      * @param height (int) - Height of the resulting image
      * @param width (int) - Width of the resulting image
@@ -337,7 +339,8 @@ public final class ArrayUtils {
     @SuppressWarnings("unused")
     public static int[][] channelsToImage(byte[][] input, int height, int width) {
         assert input != null : "The input is null";
-        assert input.length == height * width : "The input's length is different from height * width";
+        assert input.length == height * width :
+                "The input's length is different from height * width";
         for (byte[] channels : input) {
             assert channels != null : "At least one channel is null ! ";
             assert channels.length == 4: "The input contains pixels that do not have 4 channels";
@@ -353,9 +356,6 @@ public final class ArrayUtils {
             }
         }
 
-
         return output;
     }
-
-
 }

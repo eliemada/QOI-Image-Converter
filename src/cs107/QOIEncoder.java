@@ -24,7 +24,7 @@ public final class QOIEncoder {
 
     /**
      * Generate a "Quite Ok Image" header using the following parameters
-     *
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      * @param image (Helper.Image) - Image to use
      * @return (byte[]) - Corresponding "Quite Ok Image" Header
      * @throws AssertionError if the colorspace or the number of channels is corrupted or if the image is null.
@@ -32,10 +32,10 @@ public final class QOIEncoder {
      */
     public static byte[] qoiHeader(Helper.Image image) {
         assert image != null : "image is null";
-        assert image.channels() == QOISpecification.RGB || image.channels() == QOISpecification.RGBA :
-                "The image channels are corrupted";
-        assert image.color_space() == QOISpecification.sRGB || image.color_space() == QOISpecification.ALL :
-                "The image color space is corrupted";
+        assert image.channels() == QOISpecification.RGB ||
+                image.channels() == QOISpecification.RGBA : "The image channels are corrupted";
+        assert image.color_space() == QOISpecification.sRGB ||
+                image.color_space() == QOISpecification.ALL : "The image color space is corrupted";
 
         return ArrayUtils.concat(
                 QOISpecification.QOI_MAGIC,
@@ -49,10 +49,10 @@ public final class QOIEncoder {
     // ==================================================================================
 
     /**
-     * Encode the given pixel using the QOI_OP_RGB schema
-     *
+     * Encode the given pixel using the QOI_OP_RGB block
+     * @author Sebastian Kugler (362022)
      * @param pixel (byte[]) - The Pixel to encode
-     * @return (byte[]) - Encoding of the pixel using the QOI_OP_RGB schema
+     * @return (byte[]) - Encoding of the pixel using the QOI_OP_RGB block
      * @throws AssertionError if the pixel's length is not 4
      */
     public static byte[] qoiOpRGB(byte[] pixel) {
@@ -64,10 +64,10 @@ public final class QOIEncoder {
     }
 
     /**
-     * Encode the given pixel using the QOI_OP_RGBA schema
-     *
+     * Encode the given pixel using the QOI_OP_RGBA block
+     * @author Sebastian Kugler (362022)
      * @param pixel (byte[]) - The pixel to encode
-     * @return (byte[]) Encoding of the pixel using the QOI_OP_RGBA schema
+     * @return (byte[]) Encoding of the pixel using the QOI_OP_RGBA block
      * @throws AssertionError if the pixel's length is not 4
      */
     public static byte[] qoiOpRGBA(byte[] pixel) {
@@ -75,26 +75,28 @@ public final class QOIEncoder {
 
         return ArrayUtils.concat(
                 QOISpecification.QOI_OP_RGBA_TAG,
-                pixel[QOISpecification.r], pixel[QOISpecification.g], pixel[QOISpecification.b], pixel[QOISpecification.a]);
+                pixel[QOISpecification.r], pixel[QOISpecification.g],
+                pixel[QOISpecification.b], pixel[QOISpecification.a]);
     }
 
     /**
-     * Encode the index using the QOI_OP_INDEX schema
-     *
+     * Encode the index using the QOI_OP_INDEX block
+     * @author Sebastian Kugler (362022)
      * @param index (byte) - Index of the pixel
-     * @return (byte[]) - Encoding of the index using the QOI_OP_INDEX schema
+     * @return (byte[]) - Encoding of the index using the QOI_OP_INDEX block
      * @throws AssertionError if the index is outside the range of all possible indices
      */
     public static byte[] qoiOpIndex(byte index) {
-        assert (index < 64) && (index >= 0) : "The input hash table index is outside of the allowed range.";
+        assert (index < 64) && (index >= 0) :
+                "The input hash table index is outside of the allowed range.";
 
         return ArrayUtils.wrap((byte) (QOISpecification.QOI_OP_INDEX_TAG + index));
     }
     /**
-     * Encode the difference between 2 pixels using the QOI_OP_DIFF schema
-     *
+     * Encode the difference between 2 pixels using the QOI_OP_DIFF block
+     * @author Sebastian Kugler (362022)
      * @param diff (byte[]) - The difference between 2 pixels
-     * @return (byte[]) - Encoding of the given difference
+     * @return (byte[]) - Encoding of the given difference in a QOI_OP_DIFF block
      * @throws AssertionError if diff doesn't respect the constraints or diff's length is not 3
      *                        (See the handout for the constraints)
      */
@@ -104,7 +106,8 @@ public final class QOIEncoder {
         byte binEncodedOutput = QOISpecification.QOI_OP_DIFF_TAG;
 
         for (int i = 0; i < 3; i++) {
-            assert diff[i] >= -2 && diff[i] <= 1 : "A difference value is outside of this block's allowed range.";
+            assert diff[i] >= -2 && diff[i] <= 1 :
+                    "A difference value is outside of this block's allowed range.";
             diff[i] += 2;
 
             binEncodedOutput += (byte) (diff[i] << (4 - (i * 2)));
@@ -114,15 +117,14 @@ public final class QOIEncoder {
     }
 
     /**
-     * Encode the difference between 2 pixels using the QOI_OP_LUMA schema
-     *
+     * Encode the difference between 2 pixels using the QOI_OP_LUMA block
+     * @author Sebastian Kugler (362022)
      * @param diff (byte[]) - The difference between 2 pixels
-     * @return (byte[]) - Encoding of the given difference
+     * @return (byte[]) - Encoding of the given difference in a QOI_OP_LUMA block
      * @throws AssertionError if diff doesn't respect the constraints
      *                        or diff's length is not 3
      *                        (See the handout for the constraints)
      */
-
     public static byte[] qoiOpLuma(byte[] diff) {
         assert diff != null && diff.length == 3 : "The length of the input diff is not 3";
 
@@ -146,10 +148,10 @@ public final class QOIEncoder {
     }
 
     /**
-     * Encode the number of similar pixels using the QOI_OP_RUN schema
-     *
+     * Encode the number of similar pixels using the QOI_OP_RUN block
+     * @author Sebastian Kugler (362022)
      * @param count (byte) - Number of similar pixels
-     * @return (byte[]) - Encoding of count
+     * @return (byte[]) - Encoding of count in a QOI_OP_RUN block
      * @throws AssertionError if count is not between 0 (exclusive) and 63 (exclusive)
      */
     public static byte[] qoiOpRun(byte count) {
@@ -163,9 +165,14 @@ public final class QOIEncoder {
     // =================================== Helper methods ===============================
     // ==================================================================================
 
-    // this method calculates the difference between two raw input pixels' respective R, G and B channels
-    // note: could be improved to return boolean with surcharge problem from the lesson
-    public static byte[] calcRGBdiff(byte[] pixel1, byte[] pixel2) {
+    /**
+     * Calculate the difference between 2 pixels' respective R, G and B channels
+     * @author Sebastian Kugler (362022)
+     * @param pixel1 (byte[]) - First pixel (in RGB(A) format)
+     * @param pixel2 (byte[]) - Second pixel (in RGB(A) format)
+     * @return (byte[]) - Difference of the 2 pixels' respective R, G and B channels
+     */
+    private static byte[] calcRGBdiff(byte[] pixel1, byte[] pixel2) {
         byte[] pixelDiff = new byte[3];
 
         for (int i = 0; i < 3; i++)
@@ -174,18 +181,29 @@ public final class QOIEncoder {
         return pixelDiff;
     }
 
-    // this calculates the RGB differences in the QoiOpLuma format
-    // wrap-around byte values as always
-    // returns byte-array DR-DG, DG, DB-DG (consistent with R G B).
-    public static byte[] calcLumaDiff(byte[] pixelDiff) {
+    /**
+     * Calculate the LUMA difference from a given RGB difference
+     * @author Sebastian Kugler (362022)
+     * @param pixelDiff (byte[]) - Difference between pixels' respective R, G and B channels
+     *                  as calculated by {@link QOIEncoder#calcRGBdiff(byte[], byte[])}
+     * @return (byte[]) - LUMA difference without offset in DR-dg, DG and DB-dg channels
+     */
+    private static byte[] calcLumaDiff(byte[] pixelDiff) {
         return new byte[]{
                 (byte) (pixelDiff[QOISpecification.r] - pixelDiff[QOISpecification.g]),
                 pixelDiff[QOISpecification.g],
                 (byte) (pixelDiff[QOISpecification.b] - pixelDiff[QOISpecification.g])};
     }
 
-    // checks the QoiOpDiff block constraints on diff input
-    public static boolean isValidRGBdiff(byte[] pixelDiff) {
+    /**
+     * Check the QOI_OP_DIFF block constraints for a given RGB difference
+     * @author Sebastian Kugler (362022)
+     * @param pixelDiff (byte[]) - Difference between pixels' respective R, G and B channels
+     *                  as calculated by {@link QOIEncoder#calcRGBdiff(byte[], byte[])}
+     * @return (boolean) - True if the difference is within the
+     *                      QOI_OP_DIFF block constraints, false otherwise
+     */
+    private static boolean isValidRGBdiff(byte[] pixelDiff) {
         for (byte diff : pixelDiff)
             if (diff < -2 || diff > 1) {
                 return false;
@@ -193,9 +211,14 @@ public final class QOIEncoder {
         return true;
     }
 
-    // checks the QoiOpLuma block constraints on pixel diff array input
-    // the R G B indexes are the same as in the QOI spec, maybe remove the index constants?
-    public static boolean isValidLumaDiff(byte[] lumaDiff) {
+    /**
+     * Check the QOI_OP_LUMA block constraints for a given LUMA difference.
+     * @author Sebastian Kugler (362022)
+     * @param lumaDiff (byte[]) - Luma Difference of a pixel pair
+     *                  as calculated by {@link QOIEncoder#calcLumaDiff(byte[])}
+     * @return (boolean) - True if the QOI_OP_LUMA block constraints are met, false otherwise.
+     */
+    private static boolean isValidLumaDiff(byte[] lumaDiff) {
 
         final byte DRi         = 0;
         final byte DGi         = 1;
@@ -221,7 +244,7 @@ public final class QOIEncoder {
     /**
      * Encode the given image using the "Quite Ok Image" Protocol
      * (See handout for more information about the "Quite Ok Image" protocol)
-     *
+     * @author Sebastian Kugler (362022)
      * @param image (byte[][]) - Formatted image to encode
      * @return (byte[]) - "Quite Ok Image" representation of the image
      */
@@ -289,7 +312,7 @@ public final class QOIEncoder {
 
     /**
      * Creates the representation in memory of the "Quite Ok Image" file.
-     *
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      * @param image (Helper.Image) - Image to encode
      * @return (byte[]) - Binary representation of the "Quite Ok File" of the image
      * @throws AssertionError if the image is null
@@ -298,8 +321,8 @@ public final class QOIEncoder {
      */
     public static byte[] qoiFile(Helper.Image image) {
         assert image != null:"The image is null.";
-        return ArrayUtils.concat(qoiHeader(image),encodeData(ArrayUtils.imageToChannels(image.data())),
+        return ArrayUtils.concat(qoiHeader(image),
+                encodeData(ArrayUtils.imageToChannels(image.data())),
                 QOISpecification.QOI_EOF);
     }
-
 }
