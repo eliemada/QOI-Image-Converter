@@ -25,6 +25,7 @@ public final class QOIDecoder {
      * @param header (byte[]) - A "Quite Ok Image" header
      * @return (int[]) - Array such as its content is {width, height, channels, color space}
      * @throws AssertionError See handouts section 6.1
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      */
     public static int[] decodeHeader(byte[] header){
         assert header != null : "Header is null";
@@ -38,8 +39,6 @@ public final class QOIDecoder {
         assert (header[header.length-1]==QOISpecification.ALL||
                 header[header.length-1]==QOISpecification.sRGB) : "the color space is not equal "
                                                                   + "to ALL or sRGB";
-
-
 
         int[] output = new int[4];
         output[0] = ArrayUtils.toInt(ArrayUtils.extract(header,4,4));
@@ -62,6 +61,7 @@ public final class QOIDecoder {
      * @param idx (int) - Index in the input
      * @return (int) - The number of consumed bytes
      * @throws AssertionError See handouts section 6.2.1
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      */
     public static int decodeQoiOpRGB(byte[][] buffer, byte[] input, byte alpha, int position, int idx){
         assert !(input == null && buffer ==null) : "The input and the buffer are null";
@@ -86,6 +86,7 @@ public final class QOIDecoder {
      * @param idx (int) - Index in the input
      * @return (int) - The number of consumed bytes
      * @throws AssertionError See handouts section 6.2.2
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      */
     public static int decodeQoiOpRGBA(byte[][] buffer, byte[] input, int position, int idx){
         assert !(input == null && buffer ==null) : "The input and the buffer are null";
@@ -106,6 +107,7 @@ public final class QOIDecoder {
      * @param chunk (byte) - A "QOI_OP_DIFF" data chunk
      * @return (byte[]) - The newly created pixel
      * @throws AssertionError See handouts section 6.2.4
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      */
     public static byte[] decodeQoiOpDiff(byte[] previousPixel, byte chunk){
         assert !(previousPixel == null): "The previous pixel is equal to null";
@@ -126,6 +128,7 @@ public final class QOIDecoder {
      * @param data (byte[]) - A "QOI_OP_LUMA" data chunk
      * @return (byte[]) - The newly created pixel
      * @throws AssertionError See handouts section 6.2.5
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      */
     public static byte[] decodeQoiOpLuma(byte[] previousPixel, byte[] data){
         assert !(previousPixel == null): "The previous pixel is equal to null";
@@ -150,6 +153,7 @@ public final class QOIDecoder {
      * @param position (int) - Index in buffer to start writing from
      * @return (int) - number of written pixels in buffer
      * @throws AssertionError See handouts section 6.2.6
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      */
     public static int decodeQoiOpRun(byte[][] buffer, byte[] pixel, byte chunk, int position){
         assert !(buffer==null&&pixel == null) : "The buffer and the pixel are null";
@@ -180,6 +184,7 @@ public final class QOIDecoder {
      * @param height (int) - The height of the expected output
      * @return (byte[][]) - Decoded "Quite Ok Image"
      * @throws AssertionError See handouts section 6.3
+     *
      */
     public static byte[][] decodeData(byte[] data, int width, int height) {
         // Initialization
