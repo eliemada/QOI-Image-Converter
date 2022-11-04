@@ -201,36 +201,29 @@ public final class QOIDecoder {
             // Whole-byte tags
 
             // ---QOI_OP_RGB---
-            if (chunk == QOISpecification.QOI_OP_RGB_TAG) {
-                decodeQoiOpRGB(buffer, data, prevPixel[3], position, idx+1);
-                idx += 4;
-            }
+            if (chunk == QOISpecification.QOI_OP_RGB_TAG)
+                idx += decodeQoiOpRGB(buffer, data, prevPixel[3], position, idx+1);
 
             // ---QOI_OP_RGBA---
-            else if (chunk == QOISpecification.QOI_OP_RGBA_TAG) {
-                decodeQoiOpRGBA(buffer, data, position, idx+1);
-
-                idx += 5;
-            } else {
+            else if (chunk == QOISpecification.QOI_OP_RGBA_TAG)
+                idx += decodeQoiOpRGBA(buffer, data, position, idx+1);
+            else {
                 // Two-bit tags
                 byte twoBitTag = (byte) (chunk & 0b11_00_00_00);
 
                 switch (twoBitTag){
                     case QOISpecification.QOI_OP_INDEX_TAG:
                         buffer[position] = hashTable[(byte) (chunk & 0b00_11_11_11)];
-                        idx++;
                         break;
                     case QOISpecification.QOI_OP_DIFF_TAG:
                         buffer[position] = decodeQoiOpDiff(prevPixel, chunk);
-                        idx++;
                         break;
                     case QOISpecification.QOI_OP_LUMA_TAG:
                         buffer[position] = decodeQoiOpLuma(prevPixel, ArrayUtils.extract(data, idx, 2));
-                        idx += 2;
+                        idx ++;
                         break;
                     case  QOISpecification.QOI_OP_RUN_TAG:
                         position += decodeQoiOpRun(buffer, prevPixel, chunk, position);
-                        idx++;
                         break;
                     default:
                         assert false : "The universe is invalid";
@@ -238,6 +231,7 @@ public final class QOIDecoder {
                 }
             }
 
+            idx ++;
             prevPixel = buffer[position];
             hashTable[QOISpecification.hash(buffer[position])] = buffer[position];
             position++;
