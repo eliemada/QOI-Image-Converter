@@ -138,6 +138,7 @@ public final class QOIDecoder {
         dr = (((data[1] & 0b11_11_11_11) >>> 4) - 8) + dg;
         db = ((data[1]  & 0b11_11)) - 8 + dg;
 
+        // refer to QOIspec.r/g/b/a for the indexes?
         return new byte[]{(byte) (previousPixel[0] + dr),(byte) (previousPixel[1] + dg),
                 (byte) (previousPixel[2] + db), (previousPixel[3])};
     }
