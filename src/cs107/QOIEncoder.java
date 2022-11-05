@@ -49,6 +49,24 @@ public final class QOIEncoder {
     // ==================================================================================
 
     /**
+     * Here follow constants and indexes used in the encoding methods.
+     * First are typical indexes of the LUMA difference arrays, followed by offset and limit values
+     * for handling them and RGB difference arrays.
+     * The constants are used by {@link #qoiOpLuma(byte[])}, {@link #isValidLumaDiff(byte[])},
+     * {@link #qoiOpDiff(byte[])} and {@link #isValidRGBdiff(byte[])}
+     */
+    private final static byte DRi         = 0;
+    private final static byte DGi         = 1;
+    private final static byte DBi         = 2;
+    private final static byte OFF_LIM_DG_HI = 32;
+    private final static byte LIM_DG_LO = -33;
+    private final static byte OFF_LIM_DRDB_HI = 8;
+    private final static byte LIM_DRDB_LO = -9;
+    private final static byte LIM_DIFF_LO = -2;
+    private final static byte LIM_DIFF_HI = 1;
+
+
+    /**
      * Encode the given pixel using the QOI_OP_RGB block
      * @author Sebastian Kugler (362022)
      * @param pixel (byte[]) - The Pixel to encode
@@ -106,7 +124,7 @@ public final class QOIEncoder {
         byte binEncodedOutput = QOISpecification.QOI_OP_DIFF_TAG;
 
         for (int i = 0; i < 3; i++) {
-            assert diff[i] >= -2 && diff[i] <= 1 :
+            assert diff[i] >= LIM_DIFF_LO && diff[i] <= LIM_DIFF_HI :
                     "A difference value is outside of this block's allowed range.";
             diff[i] += 2;
 
@@ -128,21 +146,14 @@ public final class QOIEncoder {
     public static byte[] qoiOpLuma(byte[] diff) {
         assert diff != null && diff.length == 3 : "The length of the input diff is not 3";
 
-        final byte DRi         = 0;
-        final byte DGi         = 1;
-        final byte DBi         = 2;
-
-        final byte DG_OFFSET   = 32;
-        final byte DRDB_OFFSET = 8;
-
         byte[] binEncodedOutput = new byte[]{QOISpecification.QOI_OP_LUMA_TAG, 0};
         byte[] lumaDiff         = calcLumaDiff(diff);
 
         assert isValidLumaDiff(lumaDiff) : "The RGB difference is out of this block's accepted range.";
 
-        binEncodedOutput[0] += (byte) (lumaDiff[DGi] + DG_OFFSET);
-        binEncodedOutput[1] = (byte) ((lumaDiff[DRi] + DRDB_OFFSET) << 4);
-        binEncodedOutput[1] += lumaDiff[DBi] + DRDB_OFFSET;
+        binEncodedOutput[0] += (byte) (lumaDiff[DGi] + OFF_LIM_DG_HI);
+        binEncodedOutput[1] = (byte) ((lumaDiff[DRi] + OFF_LIM_DRDB_HI) << 4);
+        binEncodedOutput[1] += lumaDiff[DBi] + OFF_LIM_DRDB_HI;
 
         return binEncodedOutput;
     }
@@ -205,7 +216,7 @@ public final class QOIEncoder {
      */
     private static boolean isValidRGBdiff(byte[] pixelDiff) {
         for (byte diff : pixelDiff)
-            if (diff < -2 || diff > 1) {
+            if (diff < LIM_DIFF_LO || diff > LIM_DIFF_HI) {
                 return false;
             }
         return true;
@@ -220,20 +231,10 @@ public final class QOIEncoder {
      */
     private static boolean isValidLumaDiff(byte[] lumaDiff) {
 
-        final byte DRi         = 0;
-        final byte DGi         = 1;
-        final byte DBi         = 2;
-
-        final byte LOWER_DG    = -33;
-        final byte UPPER_DG    = 32;
-
-        final byte LOWER_DRDB  = -9;
-        final byte UPPER_DRDB  = 8;
-
         return (
-                lumaDiff[DRi] > LOWER_DRDB && lumaDiff[DRi] < UPPER_DRDB &&
-                lumaDiff[DGi] > LOWER_DG && lumaDiff[DGi] < UPPER_DG &&
-                lumaDiff[DBi] > LOWER_DRDB && lumaDiff[DBi] < UPPER_DRDB
+                lumaDiff[DRi] > LIM_DRDB_LO && lumaDiff[DRi] < OFF_LIM_DRDB_HI &&
+                lumaDiff[DGi] > LIM_DG_LO && lumaDiff[DGi] < OFF_LIM_DG_HI &&
+                lumaDiff[DBi] > LIM_DRDB_LO && lumaDiff[DBi] < OFF_LIM_DRDB_HI
         );
     }
 
