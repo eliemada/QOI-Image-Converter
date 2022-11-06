@@ -23,9 +23,11 @@ public class Stego {
      */
     public static void main(String[] args){
 
-        pngToQoi("references/dice.png", "dice.qoi",
-                fileToString("res/messageToEncode.txt"));
+        // encode and embed:
+//        pngToQoi("references/dice.png", "dice.qoi",
+//                fileToString("res/messageToEncode.txt"));
 
+        // decode and extract:
 //        qoiToPng("res/dice.qoi", "dice.png");
     }
 

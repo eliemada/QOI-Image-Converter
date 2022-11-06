@@ -69,11 +69,12 @@ public final class QOIDecoder {
         assert (position >= 0 && position < buffer.length) :
                 "The variable position doesn't point towards a valid location in the buffer";
         assert (idx+2 < input.length): "input does not contain enough data to recover the pixel";
+
         byte[]   extracted = ArrayUtils.extract(input,idx,3);
-        byte[]   editedBuffer = new byte[4];
-        System.arraycopy(extracted, 0, editedBuffer, 0, extracted.length);
-        editedBuffer[3]=alpha;
-        buffer[position] = editedBuffer;
+        byte[]   toBuffer = new byte[4];
+        System.arraycopy(extracted, 0, toBuffer, 0, extracted.length);
+        toBuffer[3]=alpha;
+        buffer[position] = toBuffer;
         return 3;
     }
 
@@ -93,8 +94,8 @@ public final class QOIDecoder {
                 "The variable position doesn't point towards a valid location in the buffer";
         assert ((idx + 3) < input.length): "Input does not contain enough data to recover the pixel";
 
-        byte[] output = ArrayUtils.extract(input,idx,4);
-        buffer[position] = output;
+        byte[] toBuffer = ArrayUtils.extract(input,idx,4);
+        buffer[position] = toBuffer;
         return 4;
     }
 
@@ -111,6 +112,7 @@ public final class QOIDecoder {
         assert (previousPixel.length == 4): "The previous length is not equal to 4";
         assert ((chunk & 0b11_00_00_00) == QOISpecification.QOI_OP_DIFF_TAG) :
                 "The tag of chunk is not equal to QOI_OP_DIFF_TAG";
+
         int dr, dg, db;
         dr = ((chunk & 0b11_00_00) >>> 4) -2;
         dg = ((chunk & 0b11_00 )>>> 2) -2;
@@ -138,7 +140,6 @@ public final class QOIDecoder {
         dr = (((data[1] & 0b11_11_11_11) >>> 4) - 8) + dg;
         db = ((data[1]  & 0b11_11)) - 8 + dg;
 
-        // refer to QOIspec.r/g/b/a for the indexes?
         return new byte[]{(byte) (previousPixel[0] + dr),(byte) (previousPixel[1] + dg),
                 (byte) (previousPixel[2] + db), (previousPixel[3])};
     }
@@ -244,6 +245,7 @@ public final class QOIDecoder {
 
     /**
      * Decode a file using the "Quite Ok Image" Protocol
+     * @author Sebastian Kugler (362022)
      * @param content (byte[]) - Content of the file to decode
      * @return (Image) - Decoded image
      * @throws AssertionError if content is null
