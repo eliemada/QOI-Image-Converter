@@ -183,7 +183,7 @@ public final class QOIEncoder {
      * @param pixel2 (byte[]) - Second pixel (in RGB(A) format)
      * @return (byte[]) - Difference of the 2 pixels' respective R, G and B channels
      */
-    private static byte[] calcRGBdiff(byte[] pixel1, byte[] pixel2) {
+    public static byte[] calcRGBdiff(byte[] pixel1, byte[] pixel2) {
         byte[] pixelDiff = new byte[3];
 
         for (int i = 0; i < 3; i++)
@@ -199,7 +199,7 @@ public final class QOIEncoder {
      *                  as calculated by {@link QOIEncoder#calcRGBdiff(byte[], byte[])}
      * @return (byte[]) - LUMA difference without offset in DR-dg, DG and DB-dg channels
      */
-    private static byte[] calcLumaDiff(byte[] pixelDiff) {
+    public static byte[] calcLumaDiff(byte[] pixelDiff) {
         return new byte[]{
                 (byte) (pixelDiff[QOISpecification.r] - pixelDiff[QOISpecification.g]),
                 pixelDiff[QOISpecification.g],
@@ -214,7 +214,7 @@ public final class QOIEncoder {
      * @return (boolean) - True if the difference is within the
      *                      QOI_OP_DIFF block constraints, false otherwise
      */
-    private static boolean isValidRGBdiff(byte[] pixelDiff) {
+    public static boolean isValidRGBdiff(byte[] pixelDiff) {
         for (byte diff : pixelDiff)
             if (diff < LIM_DIFF_LO || diff > LIM_DIFF_HI) {
                 return false;
@@ -229,7 +229,7 @@ public final class QOIEncoder {
      *                  as calculated by {@link QOIEncoder#calcLumaDiff(byte[])}
      * @return (boolean) - True if the QOI_OP_LUMA block constraints are met, false otherwise.
      */
-    private static boolean isValidLumaDiff(byte[] lumaDiff) {
+    public static boolean isValidLumaDiff(byte[] lumaDiff) {
 
         return (
                 lumaDiff[DRi] > LIM_DRDB_LO && lumaDiff[DRi] < OFF_LIM_DRDB_HI &&
