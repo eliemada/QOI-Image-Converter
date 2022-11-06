@@ -125,7 +125,6 @@ public final class Main {
      * @param inputFile (String) - The path of the file to decode
      * @param outputFile (String) - The path where to store the generated "PNG" Image
      */
-
     @SuppressWarnings("unused")
     public static void qoiToPng(String inputFile, String outputFile){
         // Read in binary mode the file 'input_file'

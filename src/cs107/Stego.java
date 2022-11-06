@@ -5,8 +5,9 @@ import static cs107.QOIEncoder.*;
 import static cs107.QOIDecoder.*;
 
 /**
- * Stego: Steganography tool for embedding strings in .qoi images.
- *
+ * Stego: Steganography tool for embedding strings in images.
+ * This piggybacks off of the QOI encoder/decoder and is implemented to work
+ * in parallel to encoding and decoding QOI images.
  * @author  Sebastian Kugler (362022)
  * @version 1.0
  * @apiNote Extension of the 2022 Mini Project 1
@@ -14,7 +15,12 @@ import static cs107.QOIDecoder.*;
  */
 public class Stego {
 
-
+    /**
+     * Input / Output management for the Stego class.
+     * Per default, the string to be encoded is read from the specified file
+     * while the decoded message is printed to the console.
+     * @author Sebastian Kugler (362022)
+     */
     public static void main(String[] args){
 
         pngToQoi("references/dice.png", "dice.qoi",
@@ -23,38 +29,12 @@ public class Stego {
 //        qoiToPng("res/dice.qoi", "dice.png");
     }
 
-    /**
-     * Encodes a given file from "PNG" to "QOI" with hidden data using steganography
-     * @param inputFile (String) - The path of the file to encode
-     * @param outputFile (String) - The path where to store the generated "Quite Ok Image"
-     * @param message (String) - The message to hide in the image
-     */
-    static void pngToQoi(String inputFile, String outputFile, String message){
-        // Read a PNG file
-        var inputImage = Helper.readImage(inputFile);
-        // Encode the Image to QOI
-        var outputFileContent = stegoFile(inputImage, message);
-        // Write in binary mode the file content to 'output_file'
-        Helper.write(outputFile, outputFileContent);
-    }
-
-    static String fileToString(String path) {
-        StringBuilder message = new StringBuilder();
-        try {
-            java.util.Scanner sc = new java.util.Scanner(new File(path));
-            while (sc.hasNext ()) {
-                message.append (sc.nextLine ());
-                message.append (System.lineSeparator());
-            }
-        } catch (java.io.FileNotFoundException e) {
-            System.out.println("Message file " + path + " not found.");
-        }
-
-        return message.toString();
-    }
+    // ==================================================================================
+    // ============================== Encoding and embedding ============================
+    // ==================================================================================
 
     /**
-     * Convert a string to prepare it for embedding in an image.
+     * Convert a string to prepare it for the embedding in an image.
      * @author Sebastian Kugler (362022)
      * @param message (String) - message to be converted
      * @return (byte[]) - array of bytes with only each least bit containing the data.
@@ -117,54 +97,6 @@ public class Stego {
         }
         // always increments position by 4
         return QOIEncoder.qoiOpRGBA(alteredPixel);
-    }
-
-    static void PixelToAsciiLb(byte[] pixel, byte[] asciiChunk, int asciiChunkPos) {
-
-        for (int i = 0; (i < pixel.length) && (asciiChunkPos < 16); i++) {
-            if (asciiChunkPos < 8)
-                asciiChunk[0] = (byte) ((asciiChunk[0] | (pixel[i] & 0b1) << (7 - asciiChunkPos)));
-            else
-                asciiChunk[1] = (byte) ((asciiChunk[1] | (pixel[i] & 0b1) << (15 - asciiChunkPos)));
-            asciiChunkPos++;
-        }
-    }
-
-    /**
-     * Store the decoded pixel in the buffer and extracted stego data in the {@code asciiChunk}.
-     * @author Sebastian Kugler (362022)
-     * @param buffer (byte[][]) - Buffer where to store the pixel
-     * @param input (byte[]) - Stream of bytes to read from
-     * @param alpha (byte) - Alpha component of the pixel
-     * @param position (int) - Index in the buffer
-     * @param asciiChunk (byte[]) - Two bytes to store the extracted stego data
-     * @param asciiChunkPos (int) - Position in the asciiChunk
-     * @param idx (int) - Index in the input
-     */
-    static void decodeQoiOpRGB(byte[][] buffer, byte[] input, byte alpha, int position, int idx,
-                               byte[] asciiChunk, int asciiChunkPos) {
-        QOIDecoder.decodeQoiOpRGB(buffer, input, alpha, position, idx);
-        byte[] rgb = ArrayUtils.extract(input,idx,3);
-        PixelToAsciiLb(rgb, asciiChunk, asciiChunkPos);
-    }
-
-    /**
-     * Store the decoded pixel in the buffer and extracted stego data in the {@code asciiChunk}.
-     * @author Sebastian Kugler (362022)
-     * @param buffer (byte[][]) - Buffer where to store the pixel
-     * @param input (byte[]) - Stream of bytes to read from
-     * @param position (int) - Index in the buffer
-     * @param asciiChunk (byte[]) - Two bytes to store the extracted stego data
-     * @param asciiChunkPos (int) - Position in the asciiChunk
-     * @param idx (int) - Index in the input
-     */
-    static void decodeQoiOpRGBA(byte[][] buffer, byte[] input, int position, int idx,
-                                byte[] asciiChunk, int asciiChunkPos) {
-
-        QOIDecoder.decodeQoiOpRGBA(buffer, input, position, idx);
-        byte[] rgba = ArrayUtils.extract(input,idx,4);
-
-        PixelToAsciiLb(rgba, asciiChunk, asciiChunkPos);
     }
 
     /**
@@ -291,9 +223,68 @@ public class Stego {
         return ArrayUtils.concat(encodedPixels.toArray(new byte[0][0]));
     }
 
+    // ==================================================================================
+    // ============================== Decoding and extracting ===========================
+    // ==================================================================================
+
+    /**
+     * Extract last-bit data from a given pixel's RGB(A) channels
+     * @author Sebastian Kugler (362022)
+     * @param pixel (byte[]) - The pixel in RGB(A) format to extract data from
+     * @param asciiChunk (byte[]) - The two byte chunk to store extracted bits
+     * @param asciiChunkPos (int) - The position in the asciiChunk to write to
+     */
+    static void PixelToAsciiLb(byte[] pixel, byte[] asciiChunk, int asciiChunkPos) {
+
+        for (int i = 0; (i < pixel.length) && (asciiChunkPos < 16); i++) {
+            if (asciiChunkPos < 8)
+                asciiChunk[0] = (byte) ((asciiChunk[0] | (pixel[i] & 0b1) << (7 - asciiChunkPos)));
+            else
+                asciiChunk[1] = (byte) ((asciiChunk[1] | (pixel[i] & 0b1) << (15 - asciiChunkPos)));
+            asciiChunkPos++;
+        }
+    }
+
+    /**
+     * Store the decoded pixel in the buffer and extracted stego data in the {@code asciiChunk}.
+     * @author Sebastian Kugler (362022)
+     * @param buffer (byte[][]) - Buffer where to store the pixel
+     * @param input (byte[]) - Stream of bytes to read from
+     * @param alpha (byte) - Alpha component of the pixel
+     * @param position (int) - Index in the buffer
+     * @param asciiChunk (byte[]) - Two bytes to store the extracted stego data
+     * @param asciiChunkPos (int) - Position in the asciiChunk
+     * @param idx (int) - Index in the input
+     */
+    static void decodeQoiOpRGB(byte[][] buffer, byte[] input, byte alpha, int position, int idx,
+                               byte[] asciiChunk, int asciiChunkPos) {
+        QOIDecoder.decodeQoiOpRGB(buffer, input, alpha, position, idx);
+        byte[] rgb = ArrayUtils.extract(input,idx,3);
+        PixelToAsciiLb(rgb, asciiChunk, asciiChunkPos);
+    }
+
+    /**
+     * Store the decoded pixel in the buffer and extracted stego data in the {@code asciiChunk}.
+     * @author Sebastian Kugler (362022)
+     * @param buffer (byte[][]) - Buffer where to store the pixel
+     * @param input (byte[]) - Stream of bytes to read from
+     * @param position (int) - Index in the buffer
+     * @param asciiChunk (byte[]) - Two bytes to store the extracted stego data
+     * @param asciiChunkPos (int) - Position in the asciiChunk
+     * @param idx (int) - Index in the input
+     */
+    static void decodeQoiOpRGBA(byte[][] buffer, byte[] input, int position, int idx,
+                                byte[] asciiChunk, int asciiChunkPos) {
+
+        QOIDecoder.decodeQoiOpRGBA(buffer, input, position, idx);
+        byte[] rgba = ArrayUtils.extract(input,idx,4);
+
+        PixelToAsciiLb(rgba, asciiChunk, asciiChunkPos);
+    }
+
     /**
      * Decode the given data using the "Quite Ok Image" Protocol.
-     * Extract additional data using the stego scheme and print to console.
+     * Extract additional data using the stego scheme and print it to the console.
      * @author Sebastian Kugler (362022)
      * @param data (byte[]) - Data to decode
      * @param width (int) - The width of the expected output
@@ -402,6 +393,16 @@ public class Stego {
         return buffer;
     }
 
+    // ==================================================================================
+    // =============================== Boring Helper methods ============================
+    // ==================================================================================
+    // these are needed to keep this class strictly independent as an extension
+
+    /**
+     * Encodes a given file from "QOI" to "PNG"
+     * @param inputFile (String) - The path of the file to decode
+     * @param outputFile (String) - The path where to store the generated "PNG" Image
+     */
     static void qoiToPng(String inputFile, String outputFile) {
         // Read in binary mode the file 'input_file'
         var inputFileContent = Helper.read(inputFile);
@@ -412,7 +413,42 @@ public class Stego {
     }
 
     /**
-     * EXTENSION
+     * Encodes a given file from "PNG" to "QOI" with hidden data using steganography
+     * @param inputFile (String) - The path of the file to encode
+     * @param outputFile (String) - The path where to store the generated "Quite Ok Image"
+     * @param message (String) - The message to hide in the image
+     */
+    static void pngToQoi(String inputFile, String outputFile, String message){
+        // Read a PNG file
+        var inputImage = Helper.readImage(inputFile);
+        // Encode the Image to QOI
+        var outputFileContent = stegoFile(inputImage, message);
+        // Write in binary mode the file content to 'output_file'
+        Helper.write(outputFile, outputFileContent);
+    }
+
+    /**
+     * Convert a file to a string.
+     * @author Sebastian Kugler (362022)
+     * @param path (String) - path of the file to convert
+     * @return (String) - String representation of the file
+     */
+    static String fileToString(String path) {
+        StringBuilder message = new StringBuilder();
+        try {
+            java.util.Scanner sc = new java.util.Scanner(new File(path));
+            while (sc.hasNext ()) {
+                message.append (sc.nextLine ());
+                message.append (System.lineSeparator());
+            }
+        } catch (java.io.FileNotFoundException e) {
+            System.out.println("Message file " + path + " not found.");
+        }
+
+        return message.toString();
+    }
+
+    /**
      * Creates the representation in memory of the "Quite Ok Image" file
      * while hiding a message in the encoded data.
      * @author Sebastian Kugler (362022)
@@ -431,6 +467,12 @@ public class Stego {
                 QOISpecification.QOI_EOF);
     }
 
+    /**
+     * Decode a file using the "Quite Ok Image" Protocol
+     * @param content (byte[]) - Content of the file to decode
+     * @return (Image) - Decoded image
+     * @throws AssertionError if content is null
+     */
     public static Helper.Image decodeQoiFile(byte[] content){
 
         assert content != null : "The content is null";
