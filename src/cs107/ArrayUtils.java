@@ -184,13 +184,14 @@ public final class ArrayUtils {
             assert b != null : "An array from the input is null";
         }
 
-        ArrayList<Byte> outputList = new ArrayList<>();
+        ArrayList<Byte> flatList = new ArrayList<>();
 
         for (byte[] bArray : tabs)
-            for (byte b : bArray) outputList.add(b);
+            for (byte b : bArray) flatList.add(b);
 
-        byte[] output = new byte[outputList.size()];
-        for (int i = 0; i < outputList.size(); i++) output[i] = outputList.get(i);
+        // manual array copy
+        byte[] output = new byte[flatList.size()];
+        for (int i = 0; i < flatList.size(); i++) output[i] = flatList.get(i);
 
         return output;
     }

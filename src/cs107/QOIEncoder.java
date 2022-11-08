@@ -108,6 +108,7 @@ public final class QOIEncoder {
         assert (index < 64) && (index >= 0) :
                 "The input hash table index is outside of the allowed range.";
 
+        // 63 is 0b00_11_11_11 and index >=0 : simple addition is enough here
         return ArrayUtils.wrap((byte) (QOISpecification.QOI_OP_INDEX_TAG + index));
     }
     /**
@@ -126,8 +127,9 @@ public final class QOIEncoder {
         for (int i = 0; i < 3; i++) {
             assert diff[i] >= LIM_DIFF_LO && diff[i] <= LIM_DIFF_HI :
                     "A difference value is outside of this block's allowed range.";
+            // offset each diff value as per spec (diff array is mutable, only used here)
             diff[i] += 2;
-
+            // shift the diff value to the correct position in the byte block
             binEncodedOutput += (byte) (diff[i] << (4 - (i * 2)));
         }
 
@@ -167,7 +169,7 @@ public final class QOIEncoder {
      */
     public static byte[] qoiOpRun(byte count) {
         final byte COUNT_OFFSET = -1;
-        assert count > 0 && count < 63 : "The input run count is outside of the allowed range.";
+        assert (count > 0) && (count < 63) : "The input run count is outside of the allowed range.";
 
         return ArrayUtils.wrap((byte) (QOISpecification.QOI_OP_RUN_TAG + (count + COUNT_OFFSET)));
     }

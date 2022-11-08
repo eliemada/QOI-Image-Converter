@@ -5,7 +5,8 @@ import static cs107.QOIEncoder.*;
 import static cs107.QOIDecoder.*;
 
 /**
- * Stego: Steganography tool for embedding strings in images.
+ * EXTENSION:
+ * Stego is a steganography tool for embedding strings in .qoi images.
  * This piggybacks off of the QOI encoder/decoder and is implemented to work
  * in parallel to encoding and decoding QOI images.
  * @author  Sebastian Kugler (362022)
@@ -14,6 +15,29 @@ import static cs107.QOIDecoder.*;
  * @since 1.0
  */
 public class Stego {
+/*
+    ============================================================================================
+    ======================================= Readme =============================================
+    ============================================================================================
+
+    Stego 'hides' the data of a string in the least bit of each fully encoded channel of a QOI image.
+    For minimal visual impact on the image, only QOI_OP_RGB and QOI_OP_RGBA blocks are edited.
+    This still allows for 3 respective 4 bits of data to be hidden per each of the two blocks.
+    The string data is ascii-encoded and not encrypted.
+
+    Stego acts simultaneously to the QOI encoder/decoder. Hidden data can only be added while
+    converting a .png image to a .qoi image and extracted when converting back.
+
+    --> To test this extension, uncomment the line for en- or decoding in the main method.
+        (a file ./res/messageToEncode.txt must be present containing the string to encode)
+
+    This extension depends on the package cs107.
+    (To fully isolate this class from the rest of the project, a few methods had to be copied
+    from the QOI en-/decoder to be altered only slightly.)
+
+*/
+
+
 
     /**
      * Input / Output management for the Stego class.
@@ -23,11 +47,11 @@ public class Stego {
      */
     public static void main(String[] args){
 
-        // encode and embed:
+        // ------- encode and embed: -------
 //        pngToQoi("references/dice.png", "dice.qoi",
 //                fileToString("res/messageToEncode.txt"));
 
-        // decode and extract:
+        // ------ decode and extract: ------
 //        qoiToPng("res/dice.qoi", "dice.png");
     }
 
@@ -36,7 +60,7 @@ public class Stego {
     // ==================================================================================
 
     /**
-     * Convert a string to prepare it for the embedding in an image.
+     * Ascii-encode a string in bits to prepare it for the embedding in an image.
      * @author Sebastian Kugler (362022)
      * @param message (String) - message to be converted
      * @return (byte[]) - array of bytes with only each least bit containing the data.
@@ -104,6 +128,7 @@ public class Stego {
     /**
      * Embed string data in image data while keeping a low visual impact and
      * encoding the given image using the "Quite Ok Image" Protocol.
+     * The RGB and RGBA blocks are edited at their least significant bits.
      * @author Sebastian Kugler (362022)
      * @param image (byte[][]) - Formatted image to encode
      * @param asciiLb (byte[]) - String to embed, in asciiLb format as provided
@@ -215,7 +240,7 @@ public class Stego {
         if (messagePos >= asciiLb.length)
             System.out.println("Stego: Message successfully e̶n̶c̶o̶d̶e̶d̶! " +
                     asciiLb.length + " bits were encoded and " +
-                    ((stats[4]*3 + stats[5]*4) - asciiLb.length) + " free bits left.");
+                    ((stats[4]*3 + stats[5]*4) - asciiLb.length) + " free bits are left.");
         else
             System.out.println("Message does not fit in the encoded image. There are " +
                     (asciiLb.length - messagePos) + " bits left to hide.");
@@ -248,7 +273,7 @@ public class Stego {
     }
 
     /**
-     * Store the decoded pixel in the buffer and extracted stego data in the {@code asciiChunk}.
+     * Store the decoded pixel in the buffer and the extracted stego data in the {@code asciiChunk}.
      * @author Sebastian Kugler (362022)
      * @param buffer (byte[][]) - Buffer where to store the pixel
      * @param input (byte[]) - Stream of bytes to read from
@@ -266,7 +291,7 @@ public class Stego {
     }
 
     /**
-     * Store the decoded pixel in the buffer and extracted stego data in the {@code asciiChunk}.
+     * Store the decoded pixel in the buffer and the extracted stego data in the {@code asciiChunk}.
      * @author Sebastian Kugler (362022)
      * @param buffer (byte[][]) - Buffer where to store the pixel
      * @param input (byte[]) - Stream of bytes to read from
