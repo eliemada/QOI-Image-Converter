@@ -5,9 +5,10 @@ import java.util.ArrayList;
 
 /**
  * Utility class to manipulate arrays.
- * @apiNote First Task of the 2022 Mini Project
+ *
  * @author Hamza REMMAL (hamza.remmal@epfl.ch)
  * @version 1.2
+ * @apiNote First Task of the 2022 Mini Project
  * @since 1.0
  */
 public final class ArrayUtils {
@@ -15,7 +16,8 @@ public final class ArrayUtils {
     /**
      * DO NOT CHANGE THIS, MORE ON THAT IN WEEK 7.
      */
-    private ArrayUtils(){}
+    private ArrayUtils() {
+    }
 
     // ==================================================================================
     // =========================== ARRAY EQUALITY METHODS ===============================
@@ -23,30 +25,38 @@ public final class ArrayUtils {
 
     /**
      * Check if the content of both arrays is the same
-     * @author Sebastian Kugler (362022)
+     *
      * @param a1 (byte[]) - First array
      * @param a2 (byte[]) - Second array
      * @return (boolean) - True if both arrays have the same content
-     *                      (or both are null), false otherwise
+     * (or both are null), false otherwise
      * @throws AssertionError If one of the parameters is null
+     * @author Sebastian Kugler (362022)
      */
-    public static boolean equals (byte[] a1, byte[] a2) {
+    public static boolean equals(byte[] a1, byte[] a2) {
 
         assert (a1 != null) == (a2 != null) : "Only one of the arrays is null";
 
         // If both are null, then they are equal (only check one array because of the previous assertion)
-        if (a1 == null) return true;
+        if (a1 == null) {
+            return true;
+        }
 
-        if (a1.length != a2.length) return false;
+        if (a1.length != a2.length) {
+            return false;
+        }
 
         for (int i = 0; i < a1.length; i++)
-            if (a1[i] != a2[i]) return false;
+            if (a1[i] != a2[i]) {
+                return false;
+            }
 
         return true;
     }
 
     /**
      * Check if the content of both arrays is the same
+     *
      * @param a1 (byte[][]) - First array
      * @param a2 (byte[][]) - Second array
      * @return (boolean) - true if both arrays have the same content (or both null), false otherwise
@@ -58,7 +68,7 @@ public final class ArrayUtils {
      *     First we are going to check if one of our table is null but not both.
      *     </li><li>
      *     Then we check if both of them are null, if so we return true as they have the same size
-     *</li>
+     * </li>
      * <li>
      *     To finish we loop through every lines of our table and use the {@code equals(byte[] a1, byte[]
      *     a2)} function in every line to check if the arrays are equal.     <ul>
@@ -68,18 +78,18 @@ public final class ArrayUtils {
      * </li>
      * </ul>
      */
-    public static boolean equals(byte[][] a1, byte[][] a2){
+    public static boolean equals(byte[][] a1, byte[][] a2) {
         assert (a1 != null) == (a2 != null) : "Only one of the arrays is null";
         // If both are null, then they are equal (only check one array because of the previous assertion)
         if (a1 == null) {
             return true;
         }
-        if (a1.length!= a2.length){
+        if (a1.length != a2.length) {
             return false;
         }
-        for (int i = 0; i < a1.length; i++){
+        for (int i = 0; i < a1.length; i++) {
 
-            if (!equals(a1[i], a2[i])){
+            if (!equals(a1[i], a2[i])) {
                 return false;
             }
         }
@@ -92,10 +102,11 @@ public final class ArrayUtils {
 
     /**
      * Wrap the given value in an array
+     *
      * @param value (byte) - value to wrap
      * @return (byte[]) - array with one element (value)
      */
-    public static byte[] wrap(byte value){
+    public static byte[] wrap(byte value) {
         return new byte[]{value};
     }
 
@@ -107,25 +118,26 @@ public final class ArrayUtils {
      * Create an Integer using the given array. The input needs to be considered
      * as "Big Endian"
      * (See handout for the definition of "Big Endian")
-     * @author Elie BRUNO (elie.bruno@epfl.ch)
-     * @author Sebastian Kugler (362022)
+     *
      * @param bytes (byte[]) - Array of 4 bytes
      * @return (int) - Integer representation of the array
      * @throws AssertionError if the input is null or the input's length is different from 4
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
+     * @author Sebastian Kugler (362022)
      */
     public static int toInt(byte[] bytes) {
 
         assert bytes != null : "The array is null ";
         assert (bytes.length == 4) : "The array does not contain 4 elements";
 
-        int[] masks = new int[]{0xFF000000, 0xFF0000, 0xFF00, 0xFF};
-        int shift = 24;
-        int composite = 0;
+        int[] masks     = new int[]{0xFF000000, 0xFF0000, 0xFF00, 0xFF};
+        int   shift     = 24;
+        int   composite = 0;
 
         for (int i = 0; i < 4; i++) {
 
             int shifted = bytes[i] << shift;
-            int masked = shifted & masks[i];
+            int masked  = shifted & masks[i];
             composite |= masked;
 
             shift -= 8;
@@ -137,14 +149,15 @@ public final class ArrayUtils {
     /**
      * Separate the Integer (word) to 4 bytes. The Memory layout of this integer is "Big Endian"
      * (See handout for the definition of "Big Endian")
-     * @author Elie BRUNO (elie.bruno@epfl.ch)
-     * @author Sebastian Kugler (362022)
+     *
      * @param value (int) - The integer
      * @return (byte[]) - Big Endian representation of the integer
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
+     * @author Sebastian Kugler (362022)
      */
-    public static byte[] fromInt(int value){
+    public static byte[] fromInt(int value) {
         byte[] output = new byte[4];
-        int shift = 24;
+        int    shift  = 24;
 
         for (int i = 0; i < 4; i++) {
             output[i] = (byte) (value >> shift);
@@ -160,25 +173,27 @@ public final class ArrayUtils {
 
     /**
      * Concatenate a given sequence of bytes and stores them in an array
-     * @author Sebastian Kugler (362022)
+     *
      * @param bytes (byte ...) - Sequence of bytes to store in the array
      * @return (byte[]) - Array representation of the sequence
      * @throws AssertionError if the input is null
+     * @author Sebastian Kugler (362022)
      */
-    public static byte[] concat(byte ... bytes){
+    public static byte[] concat(byte... bytes) {
         assert bytes != null : "The input is null";
         return bytes;
     }
 
     /**
      * Concatenate a given sequence of arrays into one array
-     * @author Sebastian Kugler (362022)
+     *
      * @param tabs (byte[] ...) - Sequence of arrays
      * @return (byte[]) - Array representation of the sequence
      * @throws AssertionError if the input is null
-     * or one of the inner arrays of input is null.
+     *                        or one of the inner arrays of input is null.
+     * @author Sebastian Kugler (362022)
      */
-    public static byte[] concat(byte[] ... tabs){
+    public static byte[] concat(byte[]... tabs) {
         assert tabs != null : "The input is null";
         for (byte[] b : tabs) {
             assert b != null : "An array from the input is null";
@@ -202,19 +217,22 @@ public final class ArrayUtils {
 
     /**
      * Extract an array from another array
-     * @author Elie BRUNO (elie.bruno@epfl.ch)
-     * @param input (byte[]) - Array to extract from
-     * @param start (int) - Index in the input array to start the extract from
+     *
+     * @param input  (byte[]) - Array to extract from
+     * @param start  (int) - Index in the input array to start the extract from
      * @param length (int) - The number of bytes to extract
      * @return (byte[]) - The extracted array
      * @throws AssertionError if the input is null or start and length are invalid.
-     * start + length should also be smaller than the input's length
+     *                        start + length should also be smaller than the input's length
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      */
-    public static byte[] extract (byte[] input, int start, int length){
+    public static byte[] extract(byte[] input, int start, int length) {
 
         assert input != null : "The input array is null";
-        assert (0 <= start && start < input.length &&
-                length >= 0 && start + length <= input.length) :
+        assert (
+                0 <= start && start < input.length &&
+                length >= 0 && start + length <= input.length
+        ) :
                 "The given positions are invalid";
 
         byte[] output = new byte[length];
@@ -227,27 +245,28 @@ public final class ArrayUtils {
     /**
      * Create a partition of the input array.
      * (See handout for more information on how this method works)
-     * @author Elie BRUNO (elie.bruno@epfl.ch)
+     *
      * @param input (byte[]) - The original array
      * @param sizes (int ...) - Sizes of the partitions
      * @return (byte[][]) - Array of input's partitions.
      * The order of the partition is the same as the order in sizes
      * @throws AssertionError if one of the parameters is null
-     * or the sum of the elements in sizes is different from the input's length
+     *                        or the sum of the elements in sizes is different from the input's length
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      */
-    public static byte[][] partition(byte[] input, int ... sizes) {
-        assert input != null: "Tab is null";
-        assert sizes != null: "Sizes is null";
+    public static byte[][] partition(byte[] input, int... sizes) {
+        assert input != null : "Tab is null";
+        assert sizes != null : "Sizes is null";
         int sum = 0;
-        for (int value : sizes){
+        for (int value : sizes) {
             sum += value;
         }
         assert (sum == input.length) : "The Sum of Integers in sizes is different than tab.length";
 
         byte[][] partitioned = new byte[sizes.length][1];
-        int start = 0;
-        for (int i = 0; i < sizes.length; ++i){
-            partitioned[i]= extract(input, start,sizes[i]);
+        int      start       = 0;
+        for (int i = 0; i < sizes.length; ++i) {
+            partitioned[i] = extract(input, start, sizes[i]);
             start += sizes[i];
         }
         return partitioned;
@@ -262,22 +281,24 @@ public final class ArrayUtils {
     /**
      * These functions have been created for the modularity of the code.
      * They are used to convert one pixel from an ARGB integer representation to an RGBA byte array and back.
-     * @author Elie BRUNO (elie.bruno@epfl.ch)
+     *
      * @param input The pixel in ARGB integer representation
      * @return The pixel in RGBA byte array representation
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      */
-    private static byte[] rgbaFromInt(int input){
+    private static byte[] rgbaFromInt(int input) {
         byte[] inputAsByte = fromInt(input);
         return new byte[]{inputAsByte[1], inputAsByte[2], inputAsByte[3], inputAsByte[0]};
     }
 
     /**
      * This is a reverse function of the above and converts a pixel from RGBA byte array to ARGB integer representation.
-     * @author Elie BRUNO (elie.bruno@epfl.ch)
+     *
      * @param input The pixel in RGBA byte array representation
      * @return The pixel in ARGB integer representation
+     * @author Elie BRUNO (elie.bruno@epfl.ch)
      */
-    private static int rgbaToInt(byte[] input){
+    private static int rgbaToInt(byte[] input) {
         byte[] permuted = {input[3], input[0], input[1], input[2]};
         return toInt(permuted);
     }
@@ -288,18 +309,19 @@ public final class ArrayUtils {
      * a 2-dim byte array where the first dimension is the pixel
      * and the second dimension is the channel.
      * See handouts for more information on the format.
+     *
      * @param input (int[][]) - image data
      * @return (byte [][]) - formatted image data
      * @throws AssertionError if the input is null
-     * or one of the inner arrays of input is null
+     *                        or one of the inner arrays of input is null
      * @author Elie BRUNO (elie.bruno@epfl.ch)
      */
     @SuppressWarnings("unused")
     public static byte[][] imageToChannels(int[][] input) {
         assert input != null && input.length > 0 : "The input is null or empty";
         assert input[0] != null && input[0].length > 0 : "The first line of the input is null or empty";
-        int lengthPrevLine = input[0].length;
-        boolean first = true;
+        int     lengthPrevLine = input[0].length;
+        boolean first          = true;
         for (int[] line : input) {
             assert line != null : "At least one input line is null ! ";
             if (first) {
@@ -309,10 +331,10 @@ public final class ArrayUtils {
             assert line.length == lengthPrevLine : "The lines are not the same length ! ";
             //noinspection ReassignedVariable
             lengthPrevLine = line.length;
-            }
+        }
 
-        byte[][] output = new byte[input.length * input[0].length][4];
-        int flatIndex = 0;
+        byte[][] output    = new byte[input.length * input[0].length][4];
+        int      flatIndex = 0;
         for (int[] line : input) {
             for (int pixel : line) {
                 output[flatIndex] = rgbaFromInt(pixel);
@@ -326,16 +348,17 @@ public final class ArrayUtils {
      * Format a 2-dim byte array where the first dimension is the pixel
      * and the second is the channel to a 2-dim int array where the first
      * dimension is the height and the second is the width
-     * @author Sebastian Kugler (362022)
-     * @param input (byte[][]) : linear representation of the image
+     *
+     * @param input  (byte[][]) : linear representation of the image
      * @param height (int) - Height of the resulting image
-     * @param width (int) - Width of the resulting image
+     * @param width  (int) - Width of the resulting image
      * @return (int[][]) - the image data
      * @throws AssertionError if the input is null
-     * or one of the inner arrays of input is null
-     * or input's length differs from width * height
-     * or height is invalid
-     * or width is invalid
+     *                        or one of the inner arrays of input is null
+     *                        or input's length differs from width * height
+     *                        or height is invalid
+     *                        or width is invalid
+     * @author Sebastian Kugler (362022)
      */
     @SuppressWarnings("unused")
     public static int[][] channelsToImage(byte[][] input, int height, int width) {
@@ -344,14 +367,14 @@ public final class ArrayUtils {
                 "The input's length is different from height * width";
         for (byte[] channels : input) {
             assert channels != null : "At least one channel is null ! ";
-            assert channels.length == 4: "The input contains pixels that do not have 4 channels";
+            assert channels.length == 4 : "The input contains pixels that do not have 4 channels";
         }
 
         int[][] output = new int[height][width];
 
         int flatIndex = 0;
-        for (int i = 0; i<output.length;i++){
-            for (int j = 0; j < output[0].length;j++) {
+        for (int i = 0; i < output.length; i++) {
+            for (int j = 0; j < output[0].length; j++) {
                 output[i][j] = rgbaToInt(input[flatIndex]);
                 flatIndex++;
             }

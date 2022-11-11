@@ -186,11 +186,11 @@ public final class QOIDecoder {
      */
     public static byte[][] decodeData(byte[] data, int width, int height) {
         // Initialization
-        byte[]      prevPixel   =   QOISpecification.START_PIXEL;
-        byte[][]    hashTable   =   new byte[64][4];
-        byte[][]    buffer      =   new byte[width * height][4];
-        int  idx       = 0;
-        int  position  = 0;
+        byte[]   prevPixel = QOISpecification.START_PIXEL;
+        byte[][] hashTable = new byte[64][4];
+        byte[][] buffer    = new byte[width * height][4];
+        int      idx       = 0;
+        int      position  = 0;
 
         assert data != null : "The data is null";
         assert (width > -1) : "The width is negative";
@@ -203,17 +203,19 @@ public final class QOIDecoder {
             // Whole-byte tags
 
             // ---QOI_OP_RGB---
-            if (chunk == QOISpecification.QOI_OP_RGB_TAG)
-                idx += decodeQoiOpRGB(buffer, data, prevPixel[3], position, idx+1);
+            if (chunk == QOISpecification.QOI_OP_RGB_TAG) {
+                idx += decodeQoiOpRGB(buffer, data, prevPixel[3], position, idx + 1);
+            }
 
             // ---QOI_OP_RGBA---
-            else if (chunk == QOISpecification.QOI_OP_RGBA_TAG)
-                idx += decodeQoiOpRGBA(buffer, data, position, idx+1);
+            else if (chunk == QOISpecification.QOI_OP_RGBA_TAG) {
+                idx += decodeQoiOpRGBA(buffer, data, position, idx + 1);
+            }
             else {
                 // Two-bit tags
                 byte twoBitTag = (byte) (chunk & 0b11_00_00_00);
 
-                switch (twoBitTag){
+                switch (twoBitTag) {
                     case QOISpecification.QOI_OP_INDEX_TAG:
                         buffer[position] = hashTable[(byte) (chunk & 0b00_11_11_11)];
                         break;
@@ -222,9 +224,9 @@ public final class QOIDecoder {
                         break;
                     case QOISpecification.QOI_OP_LUMA_TAG:
                         buffer[position] = decodeQoiOpLuma(prevPixel, ArrayUtils.extract(data, idx, 2));
-                        idx ++;
+                        idx++;
                         break;
-                    case  QOISpecification.QOI_OP_RUN_TAG:
+                    case QOISpecification.QOI_OP_RUN_TAG:
                         position += decodeQoiOpRun(buffer, prevPixel, chunk, position);
                         break;
                     default:
