@@ -1,6 +1,9 @@
 package cs107;
 import java.io.File;
 import java.util.ArrayList;
+// these static imports, in addition to keeping the methods of Stego private
+// are suboptimal (but necessary for the isolation of Stego.java
+// and to not edit other methods of the mini-projects' package)
 import static cs107.QOIEncoder.*;
 import static cs107.QOIDecoder.*;
 
@@ -22,11 +25,11 @@ public class Stego {
 
     Stego 'hides' the data of a string in the least bit of each fully encoded channel of a QOI image.
     For minimal visual impact on the image, only QOI_OP_RGB and QOI_OP_RGBA blocks are edited.
-    This still allows for 3 respective 4 bits of data to be hidden per each of the two blocks.
+    This still allows for 3 respective 4 bits of data to be hidden per each of the two blocks(/pixels).
     The string data is ascii-encoded and not encrypted.
 
-    Stego acts simultaneously to the QOI encoder/decoder. Hidden data can only be added while
-    converting a .png image to a .qoi image and extracted when converting back.
+    Stego encodes simultaneously to the QOI encoder/decoder. Hidden data can only be added while
+    converting a .png image to a .qoi image, and extracted when converting back.
 
     --> To test this extension, uncomment the line for en- or decoding in the main method.
         (a file ./res/messageToEncode.txt must be present containing the string to encode)
@@ -44,15 +47,30 @@ public class Stego {
      * Per default, the string to be encoded is read from the specified file
      * while the decoded message is printed to the console.
      * @author Sebastian Kugler (362022)
+     * @param args (String[]) - Command line arguments:
+     *             (input file.png, output file.qoi, message file.txt)
      */
     public static void main(String[] args){
 
+
         // ------- encode and embed: -------
-//        pngToQoi("references/dice.png", "dice.qoi",
-//                fileToString("res/messageToEncode.txt"));
+        pngToStegoQoi("references/dice.png", "dice.qoi",
+                fileToString("res/messageToEncode.txt"));
 
         // ------ decode and extract: ------
-//        qoiToPng("res/dice.qoi", "dice.png");
+        stegoQoiToPng("res/dice.qoi", "dice_de.png");
+
+
+        // use from command line
+//        assert args.length == 3 : "Please provide as arguments: " +
+//                        "<inputFile>.png <outputFile>.qoi <messageToEncode>.txt";
+//        String inputFilePath = args[0];
+//        String outputFilePath = args[1];
+//        String messageFilePath = args[2];
+//        System.out.println("Encoding message from file " + messageFilePath + " into " + inputFilePath + "...");
+//        pngToStegoQoi(inputFilePath, outputFilePath, fileToString(messageFilePath));
+//        System.out.println("Decoding message in " + outputFilePath + "...");
+//        stegoQoiToPng(outputFilePath, outputFilePath.replace(".qoi", "_decoded.png"));
     }
 
     // ==================================================================================
@@ -65,7 +83,7 @@ public class Stego {
      * @param message (String) - message to be converted
      * @return (byte[]) - array of bytes with only each least bit containing the data.
      */
-    static byte[] toAsciiLeastBit(String message) {
+    private static byte[] toAsciiLeastBit(String message) {
         assert (message != null) && (message.length() > 0) : "Message is null and/or empty";
 
         byte[] asciiLb = new byte[message.length() * 8];
@@ -95,7 +113,7 @@ public class Stego {
      * @param position (int) - position in the message to start embedding
      * @return (byte[]) - QOI_OP_RGB block with additional data embedded
      */
-    static byte[] qoiOpRGB(byte[] pixel, byte[] asciiLb, int position) {
+    private static byte[] qoiOpRGB(byte[] pixel, byte[] asciiLb, int position) {
         byte[] alteredPixel = new byte[4];
         for (int i = 0; (i < 3) && (position < asciiLb.length); i++) {
             alteredPixel[i] = (byte) ((pixel[i] & 0b11_11_11_10) | asciiLb[position]);
@@ -115,7 +133,7 @@ public class Stego {
      * @param position (int) - position in the message to start embedding
      * @return (byte[]) - QOI_OP_RGBA block with additional data embedded
      */
-    static byte[] qoiOpRGBA(byte[] pixel, byte[] asciiLb, int position) {
+    private static byte[] qoiOpRGBA(byte[] pixel, byte[] asciiLb, int position) {
         byte[] alteredPixel = new byte[4];
         for (int i = 0; (i < 4) && (position < asciiLb.length); i++) {
             alteredPixel[i] = (byte) ((pixel[i] & 0b11_11_11_10) | asciiLb[position]);
@@ -135,7 +153,7 @@ public class Stego {
      *                by {@link #toAsciiLeastBit(String)}
      * @return (byte[]) - "Quite Ok Image" representation of the image
      */
-    public static byte[] encodeData(byte[][] image, byte[] asciiLb) {
+    private static byte[] encodeData(byte[][] image, byte[] asciiLb) {
 
         // Initialization
         byte[]            prevPixel     = QOISpecification.START_PIXEL;
@@ -261,7 +279,7 @@ public class Stego {
      * @param asciiChunk (byte[]) - The two byte chunk to store extracted bits
      * @param asciiChunkPos (int) - The position in the asciiChunk to write to
      */
-    static void PixelToAsciiLb(byte[] pixel, byte[] asciiChunk, int asciiChunkPos) {
+    private static void PixelToAsciiLb(byte[] pixel, byte[] asciiChunk, int asciiChunkPos) {
 
         for (int i = 0; (i < pixel.length) && (asciiChunkPos < 16); i++) {
             if (asciiChunkPos < 8)
@@ -283,7 +301,7 @@ public class Stego {
      * @param asciiChunkPos (int) - Position in the asciiChunk
      * @param idx (int) - Index in the input
      */
-    static void decodeQoiOpRGB(byte[][] buffer, byte[] input, byte alpha, int position, int idx,
+    private static void decodeQoiOpRGB(byte[][] buffer, byte[] input, byte alpha, int position, int idx,
                                byte[] asciiChunk, int asciiChunkPos) {
         QOIDecoder.decodeQoiOpRGB(buffer, input, alpha, position, idx);
         byte[] rgb = ArrayUtils.extract(input,idx,3);
@@ -300,7 +318,7 @@ public class Stego {
      * @param asciiChunkPos (int) - Position in the asciiChunk
      * @param idx (int) - Index in the input
      */
-    static void decodeQoiOpRGBA(byte[][] buffer, byte[] input, int position, int idx,
+    private static void decodeQoiOpRGBA(byte[][] buffer, byte[] input, int position, int idx,
                                 byte[] asciiChunk, int asciiChunkPos) {
 
         QOIDecoder.decodeQoiOpRGBA(buffer, input, position, idx);
@@ -319,7 +337,7 @@ public class Stego {
      * @return (byte[][]) - Decoded "Quite Ok Image"
      * @throws AssertionError See handouts section 6.3
      */
-    public static byte[][] decodeData(byte[] data, int width, int height) {
+    private static byte[][] decodeData(byte[] data, int width, int height) {
         // Initialization
         byte[]      prevPixel   =   QOISpecification.START_PIXEL;
         byte[][]    hashTable   =   new byte[64][4];
@@ -430,7 +448,7 @@ public class Stego {
      * @param inputFile (String) - The path of the file to decode
      * @param outputFile (String) - The path where to store the generated "PNG" Image
      */
-    static void qoiToPng(String inputFile, String outputFile) {
+    private static void stegoQoiToPng(String inputFile, String outputFile) {
         // Read in binary mode the file 'input_file'
         var inputFileContent = Helper.read(inputFile);
         // Decode the file using the 'QOI' decoder
@@ -445,7 +463,7 @@ public class Stego {
      * @param outputFile (String) - The path where to store the generated "Quite Ok Image"
      * @param message (String) - The message to hide in the image
      */
-    static void pngToQoi(String inputFile, String outputFile, String message){
+    private static void pngToStegoQoi(String inputFile, String outputFile, String message){
         // Read a PNG file
         var inputImage = Helper.readImage(inputFile);
         // Encode the Image to QOI
@@ -460,7 +478,7 @@ public class Stego {
      * @param path (String) - path of the file to convert
      * @return (String) - String representation of the file
      */
-    static String fileToString(String path) {
+    private static String fileToString(String path) {
         StringBuilder message = new StringBuilder();
         try {
             java.util.Scanner sc = new java.util.Scanner(new File(path));
@@ -486,7 +504,7 @@ public class Stego {
      * @apiNote THE FILE IS NOT CREATED YET, THIS IS JUST ITS REPRESENTATION.
      * TO CREATE THE FILE, YOU'LL NEED TO CALL Helper::write
      */
-    public static byte[] stegoFile(Helper.Image image,String message) {
+    private static byte[] stegoFile(Helper.Image image,String message) {
         assert image != null:"The image is null.";
         return ArrayUtils.concat(qoiHeader(image),
                 encodeData(ArrayUtils.imageToChannels(image.data()),
@@ -500,7 +518,7 @@ public class Stego {
      * @return (Image) - Decoded image
      * @throws AssertionError if content is null
      */
-    public static Helper.Image decodeQoiFile(byte[] content){
+    private static Helper.Image decodeQoiFile(byte[] content){
 
         assert content != null : "The content is null";
         assert ArrayUtils.equals(ArrayUtils.extract(
